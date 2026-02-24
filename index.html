@@ -7,37 +7,38 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0e1117;--s1:#161b24;--s2:#1c232f;--bd:#252d3a;--bd2:#2e3a4a;
-  --tx:#e2e8f0;--mu:#64748b;--ac:#c0392b;--ac2:#e74c3c;
-  --red:#e74c3c;--yel:#f39c12;--grn:#27ae60;--gld:#f1c40f;
+  --bg:#0a0f16;--s1:#111820;--s2:#192028;--bd:#1e2d3d;--bd2:#263d52;
+  --tx:#eef4fb;--mu:#7a96b0;--ac:#c0392b;--ac2:#e74c3c;
+  --red:#e74c3c;--yel:#f39c12;--grn:#2ecc71;--gld:#f1c40f;
   --tea:#1abc9c;--pur:#8e44ad;
   --f0:'DM Serif Display',serif;--f1:'Syne',sans-serif;--fm:'DM Mono',monospace;
+  --fs-xs:11px;--fs-sm:13px;--fs-md:15px;--fs-lg:17px;--fs-xl:20px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;overflow-x:hidden}
+body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:var(--fs-md);overflow-x:hidden;line-height:1.5}
 /* SIDEBAR */
 #sb{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:100}
 .logo{padding:20px 18px 16px;border-bottom:1px solid var(--bd)}
 .logo-n{font-family:var(--f0);font-size:22px;letter-spacing:-.5px}
 .logo-a{color:var(--ac)}
 .logo-s{font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:4px;text-transform:uppercase;letter-spacing:2px}
-.nsc{padding:14px 14px 3px;font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:2px;font-weight:700}
-.ni{display:flex;align-items:center;gap:9px;padding:9px 13px;margin:1px 7px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--mu);transition:all .15s;border:1px solid transparent;user-select:none}
+.nsc{padding:16px 14px 4px;font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:2px;font-weight:700}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:1px 7px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--mu);transition:all .15s;border:1px solid transparent;user-select:none}
 .ni:hover{background:var(--s2);color:var(--tx)}
 .ni.on{background:rgba(0,200,244,.08);border-color:rgba(0,200,244,.18);color:var(--ac)}
-.ni .ic{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.ni .ic{font-size:17px;width:20px;text-align:center;flex-shrink:0}
 .bdg{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:8px;font-family:var(--fm);font-weight:600}
 .bdg-r{background:rgba(255,63,63,.18);color:var(--red);border:1px solid rgba(255,63,63,.3)}
 .bdg-y{background:rgba(255,193,46,.12);color:var(--yel);border:1px solid rgba(255,193,46,.28)}
 .bdg-g{background:rgba(41,212,122,.1);color:var(--grn);border:1px solid rgba(41,212,122,.22)}
 .uf-box{margin:auto 10px 16px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
 .uf-lbl{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px}
-.uf-val{font-family:var(--fm);font-size:18px;color:var(--gld);font-weight:500;margin-top:3px}
+.uf-val{font-family:var(--fm);font-size:20px;color:var(--gld);font-weight:600;margin-top:4px}
 .uf-dt{font-size:10px;color:var(--mu);margin-top:2px}
 /* MAIN */
 #mn{margin-left:220px;min-height:100vh}
 .tb{position:sticky;top:0;background:rgba(6,16,26,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;z-index:50}
-.tb-t{font-family:var(--f0);font-size:19px}
+.tb-t{font-family:var(--f0);font-size:22px;letter-spacing:-.3px}
 .tb-r{display:flex;align-items:center;gap:12px}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:0 0 6px var(--grn);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
@@ -50,47 +51,47 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
 .pg.on{display:block}
 /* KPI GRID */
 .kg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.kc{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:17px 18px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s}
+.kc{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:22px 22px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s}
 .kc:hover{transform:translateY(-2px);border-color:var(--bd2)}
 .kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cc,var(--ac))}
-.kl{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
-.kv{font-family:var(--fm);font-size:21px;font-weight:500;margin:7px 0 3px;color:var(--cc,var(--ac))}
-.ks{font-size:11px;color:var(--mu)}
-.ki{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:26px;opacity:.11}
+.kl{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.kv{font-family:var(--fm);font-size:26px;font-weight:600;margin:8px 0 4px;color:var(--cc,var(--ac))}
+.ks{font-size:13px;color:var(--mu)}
+.ki{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.13}
 /* CARD */
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:17px 19px;margin-bottom:17px}
-.ct{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx);margin-bottom:2px}
-.cs{font-size:11px;color:var(--mu);margin-bottom:13px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:22px 24px;margin-bottom:20px}
+.ct{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx);margin-bottom:4px}
+.cs{font-size:13px;color:var(--mu);margin-bottom:14px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 /* BAR CHART */
 .brow{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.bl{font-family:var(--fm);font-size:11px;color:var(--mu);min-width:52px}
+.bl{font-family:var(--fm);font-size:13px;color:var(--mu);min-width:56px}
 .bb{flex:1;height:22px;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden}
 .bf{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.25,.46,.45,.94)}
-.bv{font-family:var(--fm);font-size:11px;color:var(--mu);min-width:80px;text-align:right}
+.bv{font-family:var(--fm);font-size:13px;color:var(--mu);min-width:90px;text-align:right}
 /* TIMELINE */
 .tl{display:flex;flex-direction:column;gap:7px}
-.ti{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:9px;transition:border-color .15s}
+.ti{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;transition:border-color .15s}
 .ti:hover{border-color:var(--bd2)}
 .ti.cl-r{border-left:3px solid var(--red)}
 .ti.cl-y{border-left:3px solid var(--yel)}
 .ti.cl-g{border-left:3px solid var(--grn)}
 .ti.cl-m{border-left:3px solid var(--mu);opacity:.55}
 .ti.cl-t{border-left:3px solid var(--tea)}
-.td{font-family:var(--fm);font-size:11px;color:var(--mu);min-width:84px;flex-shrink:0}
+.td{font-family:var(--fm);font-size:13px;color:var(--mu);min-width:90px;flex-shrink:0}
 .ti-info{flex:1;min-width:0}
-.tn{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tdt{font-size:11px;color:var(--mu);margin-top:1px}
-.tam{font-family:var(--fm);font-size:12px;font-weight:500;text-align:right;min-width:90px;flex-shrink:0}
-.dbdg{font-family:var(--fm);font-size:10px;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.tn{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tdt{font-size:13px;color:var(--mu);margin-top:2px}
+.tam{font-family:var(--fm);font-size:15px;font-weight:600;text-align:right;min-width:100px;flex-shrink:0}
+.dbdg{font-family:var(--fm);font-size:12px;padding:3px 9px;border-radius:5px;white-space:nowrap;flex-shrink:0;font-weight:700}
 .dbdg-r{background:rgba(255,63,63,.12);color:var(--red);border:1px solid rgba(255,63,63,.25)}
 .dbdg-y{background:rgba(255,193,46,.1);color:var(--yel);border:1px solid rgba(255,193,46,.22)}
 .dbdg-g{background:rgba(41,212,122,.08);color:var(--grn);border:1px solid rgba(41,212,122,.18)}
 .dbdg-m{background:rgba(83,125,152,.1);color:var(--mu);border:1px solid rgba(83,125,152,.2)}
 .dbdg-t{background:rgba(30,201,183,.1);color:var(--tea);border:1px solid rgba(30,201,183,.22)}
 .abts{display:flex;gap:5px;flex-shrink:0}
-.ab{font-family:var(--f1);font-size:11px;padding:4px 9px;border-radius:5px;border:1px solid var(--bd);cursor:pointer;background:var(--s1);color:var(--tx);transition:all .12s;font-weight:500;white-space:nowrap}
+.ab{font-family:var(--f1);font-size:12px;padding:6px 11px;border-radius:6px;border:1px solid var(--bd);cursor:pointer;background:var(--s1);color:var(--tx);transition:all .12s;font-weight:600;white-space:nowrap}
 .ab:hover{background:var(--s2)}
 .ab-p{border-color:rgba(41,212,122,.3);color:var(--grn)}
 .ab-p:hover{background:rgba(41,212,122,.08)}
@@ -100,20 +101,20 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
 .ab-d:hover{background:rgba(255,63,63,.08)}
 /* TABLE */
 .dt{width:100%;border-collapse:collapse;font-size:12px}
-.dt th{padding:9px 11px;text-align:left;color:var(--mu);font-size:9px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;border-bottom:1px solid var(--bd);background:var(--s1);position:sticky;top:0;z-index:2}
-.dt td{padding:9px 11px;border-bottom:1px solid rgba(23,46,66,.5);vertical-align:middle}
+.dt th{padding:11px 13px;text-align:left;color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;border-bottom:1px solid var(--bd);background:var(--s1);position:sticky;top:0;z-index:2}
+.dt td{padding:11px 13px;border-bottom:1px solid rgba(30,45,61,.6);vertical-align:middle;font-size:14px}
 .dt tr:hover td{background:rgba(255,255,255,.012)}
-.rchip{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--fm);font-size:11px;font-weight:500}
-.tchip{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.rchip{display:inline-block;padding:3px 9px;border-radius:5px;font-family:var(--fm);font-size:13px;font-weight:600}
+.tchip{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
 .tc-com{background:rgba(0,200,244,.08);color:var(--ac);border:1px solid rgba(0,200,244,.17)}
 .tc-mut{background:rgba(30,201,183,.08);color:var(--tea);border:1px solid rgba(30,201,183,.17)}
 .tc-bol{background:rgba(255,193,46,.08);color:var(--yel);border:1px solid rgba(255,193,46,.2)}
 /* MEJORAS */
 .mc{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:16px;border-left:3px solid var(--mc,var(--ac));transition:transform .2s,box-shadow .2s}
 .mc:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.35)}
-.m-sav{font-family:var(--fm);font-size:18px;font-weight:500;color:var(--grn);margin:7px 0 4px}
-.m-tit{font-size:13px;font-weight:700;margin-bottom:5px}
-.m-bod{font-size:11px;color:var(--mu);line-height:1.55}
+.m-sav{font-family:var(--fm);font-size:22px;font-weight:600;color:var(--grn);margin:8px 0 6px}
+.m-tit{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.4}
+.m-bod{font-size:13px;color:var(--mu);line-height:1.6}
 .ptag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;margin-top:9px}
 .pt-h{background:rgba(255,63,63,.12);color:var(--red);border:1px solid rgba(255,63,63,.22)}
 .pt-m{background:rgba(255,193,46,.09);color:var(--yel);border:1px solid rgba(255,193,46,.22)}
@@ -126,11 +127,11 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
 .mo.on{display:flex}
 .md{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:26px 28px;width:480px;max-width:96vw;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:mi .22s cubic-bezier(.25,.46,.45,.94)}
 @keyframes mi{from{opacity:0;transform:scale(.95) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.md-t{font-family:var(--f0);font-size:20px;margin-bottom:4px}
+.md-t{font-family:var(--f0);font-size:24px;margin-bottom:6px}
 .md-s{font-size:11px;color:var(--mu);margin-bottom:18px}
 .fg{margin-bottom:12px}
-.fl{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:5px;display:block}
-.fi,.fse{width:100%;background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:9px 11px;border-radius:7px;font-size:13px;font-family:var(--f1);outline:none;transition:border-color .15s}
+.fl{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:block}
+.fi,.fse{width:100%;background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:10px 13px;border-radius:8px;font-size:14px;font-family:var(--f1);outline:none;transition:border-color .15s}
 .fi:focus,.fse:focus{border-color:var(--ac)}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{padding:9px 18px;border-radius:7px;border:none;cursor:pointer;font-family:var(--f1);font-size:13px;font-weight:600;transition:all .15s}
@@ -145,13 +146,13 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
 .ibox{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;margin-bottom:14px;display:grid}
 /* TOAST */
 #toasts{position:fixed;top:68px;right:18px;z-index:300;display:flex;flex-direction:column;gap:7px}
-.toast{background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:12px 16px;min-width:260px;animation:ti .22s cubic-bezier(.25,.46,.45,.94);font-size:13px;box-shadow:0 6px 28px rgba(0,0,0,.4)}
+.toast{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;min-width:280px;animation:ti .22s cubic-bezier(.25,.46,.45,.94);font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
 .toast-s{border-left:3px solid var(--grn)}
 .toast-d{border-left:3px solid var(--red)}
 .toast-w{border-left:3px solid var(--yel)}
 @keyframes ti{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
-.t-t{font-weight:700;margin-bottom:1px}
-.t-b{font-size:11px;color:var(--mu)}
+.t-t{font-weight:700;margin-bottom:3px;font-size:15px}
+.t-b{font-size:13px;color:var(--mu)}
 /* STATUS */
 .st-paid{color:var(--mu);text-decoration:line-through;font-style:italic}
 .st-refi{color:var(--tea)}
@@ -765,13 +766,13 @@ let DB = [
   {id:'r29',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340270092',fechaOrigen:'2025-08-21',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
   {id:'r30',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340270749',fechaOrigen:'2025-09-09',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
   {id:'r31',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340275582',fechaOrigen:'2025-12-30',montoOrigen:2000,vcto:'2026-03-30',cuotaStr:'',capital:2000,tasa:0.064,interes:32,saldo:2032,estado:'Pendiente',nota:''},
-  {id:'r32',tipo:'Comerciales',acreedor:'BCI',deudor:'Isidora 19',num:'99973481',fechaOrigen:'2025-05-06',montoOrigen:20000,fechaRenov:'2025-09-08',vcto:'2026-03-24',cuotaStr:'',capital:20000,tasa:0.025505,interes:279.138,saldo:20279.138,estado:'Pendiente',nota:''},
-  {id:'r33',tipo:'Comerciales',acreedor:'BCI',deudor:'Isidora 19',num:'99973482',fechaOrigen:'2025-05-06',montoOrigen:5000,fechaRenov:'2025-09-08',vcto:'2026-03-24',cuotaStr:'',capital:5000,tasa:0.025505,interes:69.785,saldo:5069.785,estado:'Pendiente',nota:''},
-  {id:'r34',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6538219',fechaOrigen:'2024-09-23',montoOrigen:2010.05,fechaRenov:'2025-09-23',vcto:'2026-09-23',cuotaStr:'',capital:2010.05,tasa:0.0076,interes:185.863,saldo:2195.913,estado:'Pendiente',nota:''},
-  {id:'r35',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6743583',fechaOrigen:'2024-11-11',montoOrigen:879.397,fechaRenov:'2025-11-06',vcto:'2026-11-06',cuotaStr:'',capital:879.397,tasa:0.0078,interes:83.455,saldo:962.852,estado:'Pendiente',nota:''},
-  {id:'r36',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6980696',fechaOrigen:'2025-01-27',montoOrigen:2512.563,fechaRenov:'2026-01-27',vcto:'2026-04-29',cuotaStr:'',capital:2512.563,tasa:0.0079,interes:60.871,saldo:2573.434,estado:'Pendiente',nota:''},
-  {id:'r37',tipo:'Comerciales',acreedor:'BICE',deudor:'Foster 23',num:'6865965',fechaOrigen:'2024-12-20',montoOrigen:4974.874,fechaRenov:'2025-12-15',vcto:'2026-06-15',cuotaStr:'',capital:4974.874,tasa:0.0078,interes:235.411,saldo:5210.285,estado:'Pendiente',nota:''},
-  {id:'r38',tipo:'Comerciales',acreedor:'BICE',deudor:'Foster 23',num:'6980644',fechaOrigen:'2025-01-27',montoOrigen:1306.533,fechaRenov:'2026-01-23',vcto:'2026-04-28',cuotaStr:'',capital:1306.533,tasa:0.0077,interes:31.858,saldo:1338.390,estado:'Pendiente',nota:''},
+  {id:'r32',tipo:'Comerciales',acreedor:'BCI',deudor:'Isidora 19',num:'99973481',fechaOrigen:'2025-05-06',montoOrigen:20000,fechaRenov:'2025-09-08',vcto:'2026-03-24',cuotaStr:'',capital:20000,tasa:0.025505*12,tasaMensual:0.025505,interes:279.138,saldo:20279.138,estado:'Pendiente',nota:''},
+  {id:'r33',tipo:'Comerciales',acreedor:'BCI',deudor:'Isidora 19',num:'99973482',fechaOrigen:'2025-05-06',montoOrigen:5000,fechaRenov:'2025-09-08',vcto:'2026-03-24',cuotaStr:'',capital:5000,tasa:0.025505*12,tasaMensual:0.025505,interes:69.785,saldo:5069.785,estado:'Pendiente',nota:''},
+  {id:'r34',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6538219',fechaOrigen:'2024-09-23',montoOrigen:2010.05,fechaRenov:'2025-09-23',vcto:'2026-09-23',cuotaStr:'',capital:2010.05,tasa:0.0076*12,tasaMensual:0.0076,interes:185.863,saldo:2195.913,estado:'Pendiente',nota:''},
+  {id:'r35',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6743583',fechaOrigen:'2024-11-11',montoOrigen:879.397,fechaRenov:'2025-11-06',vcto:'2026-11-06',cuotaStr:'',capital:879.397,tasa:0.0078*12,tasaMensual:0.0078,interes:83.455,saldo:962.852,estado:'Pendiente',nota:''},
+  {id:'r36',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6980696',fechaOrigen:'2025-01-27',montoOrigen:2512.563,fechaRenov:'2026-01-27',vcto:'2026-04-29',cuotaStr:'',capital:2512.563,tasa:0.0079*12,tasaMensual:0.0079,interes:60.871,saldo:2573.434,estado:'Pendiente',nota:''},
+  {id:'r37',tipo:'Comerciales',acreedor:'BICE',deudor:'Foster 23',num:'6865965',fechaOrigen:'2024-12-20',montoOrigen:4974.874,fechaRenov:'2025-12-15',vcto:'2026-06-15',cuotaStr:'',capital:4974.874,tasa:0.0078*12,tasaMensual:0.0078,interes:235.411,saldo:5210.285,estado:'Pendiente',nota:''},
+  {id:'r38',tipo:'Comerciales',acreedor:'BICE',deudor:'Foster 23',num:'6980644',fechaOrigen:'2025-01-27',montoOrigen:1306.533,fechaRenov:'2026-01-23',vcto:'2026-04-28',cuotaStr:'',capital:1306.533,tasa:0.0077*12,tasaMensual:0.0077,interes:31.858,saldo:1338.390,estado:'Pendiente',nota:''},
   // MUTUOS
   {id:'r39',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Nueva el Golf',num:'120789',fechaOrigen:'2022-12-27',montoOrigen:378578.65,vcto:'2048-01-10',proxVcto:'2026-02-10',cuotaStr:'37/300',capital:378578.65,tasa:0.048,interes:null,saldo:378578.65,cuota:1481.9869,estado:'Activo',nota:'Garantía hipotecaria'},
   {id:'r40',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Las Condes 12.560',num:'',fechaOrigen:'2025-06-12',montoOrigen:534476.752,vcto:'2029-01-10',proxVcto:'2025-10-10',cuotaStr:'3/42',capital:534476.752,tasa:0.049,interes:null,saldo:534476.752,cuota:2182.447,estado:'Activo',nota:'Garantía hipotecaria'},
@@ -933,6 +934,7 @@ function tiHTML(c, mini = false) {
   const nota = c.nota ? ` · <em style="font-size:10px;color:var(--mu)">${c.nota}</em>` : '';
   const renov = c.fechaRenov ? ` · Renov: ${c.fechaRenov}` : '';
   const cuota = c.cuota ? ` · Cuota: ${fUF(c.cuota)}/mes` : '';
+  const mensual = c.tasaMensual ? ` · <span style='color:var(--yel);font-size:11px'>tasa mensual: ${pct(c.tasaMensual)}/mes</span>` : '';
 
   const acts = mini ? '' : `<div class="abts">
     ${c.estado !== 'Pagado' ? `<button class="ab ab-p" onclick="accion('${c.id}','pago')">✓ Pago</button>` : ''}
@@ -945,7 +947,7 @@ function tiHTML(c, mini = false) {
     <div class="td">${c.vcto || '—'}</div>
     <div class="ti-info">
       <div class="tn ${c.estado==='Pagado'?'st-paid':c.estado==='Refinanciado'?'st-refi':''}">${c.deudor} · ${c.acreedor}</div>
-      <div class="tdt">${c.tipo} · ${c.num||'—'}${renov}${cuota}${nota}</div>
+      <div class="tdt">${c.tipo} · ${c.num||'—'}${renov}${cuota}${mensual}${nota}</div>
     </div>
     <div class="tam">${fUF(c.saldo)}</div>
     <span class="dbdg ${bdgCls}">${bdgTxt}</span>
@@ -1146,7 +1148,10 @@ function rCreditos() {
       <td style="color:var(--mu)">${c.acreedor}</td>
       <td><span class="tchip ${c.tipo==='Mutuos'?'tc-mut':c.tipo==='Boleta Gtia.'?'tc-bol':'tc-com'}">${c.tipo==='Mutuos'?'Mutuo':c.tipo==='Boleta Gtia.'?'Boleta':'Comerc.'}</span></td>
       <td style="font-family:var(--fm);text-align:right">${c.capital!=null?fUF(c.capital):'—'}</td>
-      <td style="text-align:right"><span class="rchip" style="color:${rc(c.tasa)};background:${rc(c.tasa)}18;border:1px solid ${rc(c.tasa)}33">${pct(c.tasa)}</span></td>
+      <td style="text-align:right">
+        <span class="rchip" style="color:${rc(c.tasa)};background:${rc(c.tasa)}18;border:1px solid ${rc(c.tasa)}33">${pct(c.tasa)}</span>
+        ${c.tasaMensual?`<span style="font-size:9px;color:var(--mu);display:block;margin-top:2px">${pct(c.tasaMensual)}/mes</span>`:''}
+      </td>
       <td style="font-family:var(--fm);font-size:11px;text-align:right;color:var(--mu)">${c.interes!=null?fUF(c.interes):'—'}</td>
       <td style="font-family:var(--fm);font-weight:700;text-align:right">${fUF(c.saldo)}</td>
       <td>${c.vcto||'—'}${dBdg}</td>
