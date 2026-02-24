@@ -41,6 +41,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
 .tb-r{display:flex;align-items:center;gap:12px}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:0 0 6px var(--grn);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .dtag{font-family:var(--fm);font-size:11px;color:var(--mu);background:var(--s2);padding:4px 10px;border-radius:5px;border:1px solid var(--bd)}
 .btn-p{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:var(--f1);font-size:12px;font-weight:600;background:var(--ac);color:#000;transition:all .15s}
 .btn-p:hover{background:#26d0f8;transform:translateY(-1px)}
@@ -202,9 +203,10 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
       <div class="tb-t" id="pg-title">Dashboard</div>
     </div>
     <div class="tb-r">
-      <div class="live-dot"></div>
-      <span style="font-size:11px;color:var(--mu)">Live</span>
-      <div class="dtag">23 FEB 2026</div>
+      <div id="sync-bar" style="background:rgba(100,116,139,.08);border:1px solid rgba(100,116,139,.2);color:#64748b;padding:6px 14px;border-radius:6px;font-size:11px;font-family:var(--fm);display:flex;align-items:center;gap:6px;">
+        <span>⊘</span> Modo local
+      </div>
+      <button onclick="syncFromSheet()" style="background:transparent;border:1px solid var(--bd);color:var(--mu);padding:6px 11px;border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--f1);transition:all .15s" onmouseover="this.style.color='var(--tx)'" onmouseout="this.style.color='var(--mu)'">↻ Sync</button>
       <div style="height:20px;width:1px;background:var(--bd)"></div>
       <button class="btn-p" id="tb-add" style="background:var(--red);color:#fff">+ Crédito</button>
     </div>
@@ -469,6 +471,260 @@ body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:14px;o
 
 <script>
 'use strict';
+
+// ══════════════════════════════════════════
+// BACKEND CONFIG — GOOGLE APPS SCRIPT
+// ══════════════════════════════════════════
+// 👇 PEGA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT DESPUÉS DEL DEPLOY
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5lE-roRnEQMs7id7SLy_4JUjtJSNJypBBqE0O8j-c0d59tfIU8hL9mvyrknpJ_b62/exec';
+
+// ── Nombre de tu hoja "Historial" en Google Sheets ──
+const HOJA_HISTORIAL = 'Historial';  // puedes cambiarla si quieres otro nombre
+
+// ══════════════════════════════════════════
+// CAPA DE PERSISTENCIA — escribe a Google Sheets
+// cada acción queda registrada en la hoja "Historial"
+// ══════════════════════════════════════════
+
+/**
+ * Envía una fila al Apps Script para que la escriba en Google Sheets.
+ * No bloquea la UI — si falla, la app sigue funcionando en modo local.
+ *
+ * @param {Object} evento  - datos del evento a registrar
+ * @returns {Promise<boolean>} - true si guardó ok, false si falló
+ */
+async function persistirCambio(evento) {
+  if (!SCRIPT_URL) {
+    console.info('[PASIVOS360] Sin SCRIPT_URL — cambio guardado solo en memoria:', evento);
+    showSyncStatus('offline', 'Cambio en memoria · configura SCRIPT_URL para persistir');
+    return false;
+  }
+  showSyncStatus('syncing', 'Guardando...');
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode:   'no-cors',   // Google Apps Script requiere no-cors desde Pages
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'registrarCambio', data: evento })
+    });
+    showSyncStatus('ok', `Guardado en Sheets · ${new Date().toLocaleTimeString('es-CL')}`);
+    return true;
+  } catch(e) {
+    console.warn('[PASIVOS360] Error al guardar en Sheets:', e);
+    showSyncStatus('error', 'Error de red · cambio guardado localmente');
+    return false;
+  }
+}
+
+/**
+ * Construye el objeto "evento" estándar que se escribe como fila en Historial
+ */
+function buildEvento(tipo, credito, detalle, extras = {}) {
+  return {
+    timestamp:   new Date().toISOString(),
+    fecha_local: new Date().toLocaleDateString('es-CL'),
+    hora_local:  new Date().toLocaleTimeString('es-CL'),
+    tipo_accion: tipo,                    // PAGO | REFINANCIAMIENTO | NOTA | NUEVO | EDICION | ELIMINACION
+    credito_id:  credito.id || '—',
+    num_credito: credito.num || '—',
+    deudor:      credito.deudor || '—',
+    acreedor:    credito.acreedor || '—',
+    tipo_credito:credito.tipo || '—',
+    saldo_uf:    credito.saldo || 0,
+    tasa_actual: credito.tasa ? (credito.tasa * 100).toFixed(4) + '%' : '—',
+    vcto:        credito.vcto || '—',
+    detalle:     detalle,
+    ...extras
+  };
+}
+
+// Estado de conexión
+let IS_CONNECTED = false;
+let LAST_SYNC    = null;
+let SAVING       = false;
+
+// ── Capa API ──────────────────────────────
+async function apiGet(action, params = {}) {
+  if (!SCRIPT_URL) return null;
+  try {
+    const qs  = new URLSearchParams({ action, ...params }).toString();
+    const res = await fetch(`${SCRIPT_URL}?${qs}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    return json;
+  } catch(e) {
+    console.warn('API GET error:', e);
+    return null;
+  }
+}
+
+async function apiPost(action, data) {
+  if (!SCRIPT_URL) return null;
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...data })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    return json;
+  } catch(e) {
+    console.warn('API POST error:', e);
+    showSyncStatus('error', 'Error al guardar: ' + e.message);
+    return null;
+  }
+}
+
+// ── Sincronización ────────────────────────
+async function syncFromSheet() {
+  if (!SCRIPT_URL) {
+    showSyncStatus('offline', 'Sin conexión — modo local');
+    return;
+  }
+  showSyncStatus('syncing', 'Sincronizando con Google Sheets...');
+  const data = await apiGet('getAllData');
+  if (!data) {
+    showSyncStatus('error', 'Error de conexión');
+    IS_CONNECTED = false;
+    return;
+  }
+
+  // Merge sheet data into DB
+  if (data.creditos && Array.isArray(data.creditos)) {
+    DB = data.creditos.map(mapSheetRow);
+    LAST_SYNC = new Date();
+    IS_CONNECTED = true;
+  }
+
+  // Update UF value
+  if (data.config && data.config.UF_HOY) {
+    document.querySelector('.uf-val').textContent = '$' + parseFloat(data.config.UF_HOY).toLocaleString('es-CL');
+  }
+
+  showSyncStatus('ok', `Sincronizado · ${LAST_SYNC.toLocaleTimeString('es-CL')}`);
+  renderAll();
+}
+
+function mapSheetRow(r) {
+  // Map Google Sheet column names → app field names
+  return {
+    id:          r.ID || r['N° Credito'] || ('s'+Math.random()),
+    _rowIndex:   r._rowIndex,
+    tipo:        r.Tipo || r['Tipo'] || 'Comerciales',
+    acreedor:    r.Acreedor2 || r.Acreedor || '—',
+    deudor:      r.Deudor || '—',
+    num:         r['N° Credito'] || '',
+    fechaOrigen: formatDate(r['Fecha Origen']),
+    montoOrigen: +r['Monto Origen'] || 0,
+    fechaRenov:  formatDate(r['Fecha Renov']),
+    vcto:        formatDate(r.Vencimiento),
+    proxVcto:    formatDate(r['Proximo Vcto']),
+    cuotaStr:    r.Cuota || '',
+    capital:     +r.Capital || null,
+    tasa:        +r.Tasa   || 0,
+    interes:     +r.Interes || null,
+    saldo:       +r.Saldo  || 0,
+    cuota:       +r['Valor cuota'] || null,
+    estado:      mapEstado(r.Paga),
+    nota:        r.Nota || '',
+    garantia:    r.Garantia || '',
+  };
+}
+
+function mapEstado(v) {
+  if (!v || v === '' || v === null) return 'Pendiente';
+  const s = v.toString().toLowerCase();
+  if (s === 'pagado' || s === 'si' || s === 'sí' || s === '1') return 'Pagado';
+  if (s === 'refinanciado') return 'Refinanciado';
+  if (s === 'activo') return 'Activo';
+  return 'Pendiente';
+}
+
+function formatDate(v) {
+  if (!v) return '';
+  if (typeof v === 'string' && v.match(/\d{4}-\d{2}-\d{2}/)) return v.slice(0,10);
+  return '';
+}
+
+// ── Status bar ────────────────────────────
+function showSyncStatus(state, msg) {
+  const el = document.getElementById('sync-bar');
+  if (!el) return;
+  const styles = {
+    ok:      { bg:'rgba(39,174,96,.12)',  border:'rgba(39,174,96,.25)',  color:'#27ae60', icon:'✓' },
+    syncing: { bg:'rgba(241,196,15,.08)', border:'rgba(241,196,15,.2)',  color:'#f1c40f', icon:'⟳' },
+    error:   { bg:'rgba(231,76,60,.1)',   border:'rgba(231,76,60,.25)',  color:'#e74c3c', icon:'✕' },
+    offline: { bg:'rgba(100,116,139,.08)',border:'rgba(100,116,139,.2)', color:'#64748b', icon:'⊘' },
+  };
+  const s = styles[state] || styles.offline;
+  el.style.cssText = `background:${s.bg};border:1px solid ${s.border};color:${s.color};padding:6px 14px;border-radius:6px;font-size:11px;font-family:var(--fm);display:flex;align-items:center;gap:6px;`;
+  el.innerHTML = `<span style="animation:${state==='syncing'?'spin 1s linear infinite':'none'}">${s.icon}</span> ${msg}`;
+}
+
+// ── Override save functions to also write to Sheet ───────────────
+// saveCredit ya está definida arriba — la wrapeamos para persistir
+const _origSaveCredit = saveCredit;
+function saveCredit(editId) {
+  // Capturar estado antes para saber si es nuevo o edición
+  const esEdicion = !!editId;
+  const creditoAntes = editId ? DB.find(x => x.id === editId) : null;
+  
+  // 1. Ejecutar lógica original (actualiza DB local, cierra modal, etc.)
+  _origSaveCredit(editId);
+
+  // 2. Persistir en Google Sheets (async)
+  const creditoDespues = editId
+    ? DB.find(x => x.id === editId)          // editado
+    : DB[DB.length - 1];                      // recién insertado
+
+  if (creditoDespues) {
+    const tipo = esEdicion ? 'EDICION' : 'NUEVO_CREDITO';
+    let detalle = esEdicion
+      ? `Crédito editado. Deudor: ${creditoDespues.deudor} · Acreedor: ${creditoDespues.acreedor}`
+      : `Nuevo crédito agregado. Deudor: ${creditoDespues.deudor} · Acreedor: ${creditoDespues.acreedor}`;
+
+    const extras = {
+      capital_uf:  creditoDespues.capital || '—',
+      tasa_nueva:  creditoDespues.tasa ? (creditoDespues.tasa*100).toFixed(4)+'%' : '—',
+      vcto_nuevo:  creditoDespues.vcto || '—',
+    };
+
+    if (esEdicion && creditoAntes) {
+      if (creditoAntes.tasa !== creditoDespues.tasa)
+        detalle += `. Tasa: ${pct(creditoAntes.tasa)} → ${pct(creditoDespues.tasa)}`;
+      if (creditoAntes.vcto !== creditoDespues.vcto)
+        detalle += `. Vcto: ${creditoAntes.vcto} → ${creditoDespues.vcto}`;
+    }
+
+    persistirCambio(buildEvento(tipo, creditoDespues, detalle, extras));
+  }
+}
+
+function sheetRowFromCredit(c) {
+  return {
+    _rowIndex:        c._rowIndex,
+    ID:               c.id,
+    Tipo:             c.tipo,
+    Acreedor2:        c.acreedor,
+    Deudor:           c.deudor,
+    'N° Credito':     c.num,
+    'Fecha Origen':   c.fechaOrigen,
+    'Monto Origen':   c.montoOrigen,
+    'Fecha Renov':    c.fechaRenov,
+    Vencimiento:      c.vcto,
+    Capital:          c.capital,
+    Tasa:             c.tasa,
+    Interes:          c.interes,
+    Saldo:            c.saldo,
+    Paga:             c.estado === 'Pagado' ? 'Pagado' : c.estado === 'Refinanciado' ? 'Refinanciado' : '',
+    Nota:             c.nota,
+  };
+}
+
+
 // ══════════════════════════════════════════
 // DATA — 100% del archivo Pasivos_para_AI.xlsx
 // ══════════════════════════════════════════
@@ -1074,9 +1330,19 @@ function accion(id, tipo) {
     btn.textContent = '✓ Confirmar Pago';
     btn.onclick = () => {
       const fecha = document.getElementById('aa-fecha')?.value || '';
+      const monto = document.getElementById('aa-monto')?.value || c.saldo;
       const obs   = document.getElementById('aa-obs')?.value   || '';
-      DB = DB.map(x => x.id===id ? {...x, estado:'Pagado', nota:`Pagado ${fecha}${obs?' — '+obs:''}`} : x);
-      closeM('mo-act'); toast('s','Pago registrado',`${c.deudor} · ${c.acreedor}`); renderAll();
+      const nota  = `Pagado ${fecha}${obs?' — '+obs:''}`;
+      // 1. Actualizar memoria local
+      DB = DB.map(x => x.id===id ? {...x, estado:'Pagado', nota} : x);
+      closeM('mo-act');
+      toast('s','Pago registrado',`${c.deudor} · ${c.acreedor}`);
+      renderAll();
+      // 2. Persistir en Google Sheets (async, no bloquea)
+      persistirCambio(buildEvento('PAGO', c,
+        `Pagado el ${fecha}. Monto: UF ${monto}. ${obs}`,
+        { fecha_pago: fecha, monto_pagado_uf: monto, observacion: obs }
+      ));
     };
   }
   else if (tipo === 'refi') {
@@ -1105,8 +1371,29 @@ function accion(id, tipo) {
       const nv  = document.getElementById('aa-nvcto')?.value  || c.vcto;
       const nc  = parseFloat(document.getElementById('aa-ncap')?.value)  || c.capital;
       const obs = document.getElementById('aa-robs')?.value || '';
-      DB = DB.map(x => x.id===id ? {...x, estado:'Refinanciado', tasa:nt||x.tasa, acreedor:nb, vcto:nv, capital:nc, fechaRenov:new Date().toISOString().slice(0,10), nota:`Refi ${new Date().toLocaleDateString('es-CL')}${obs?' — '+obs:''}`} : x);
-      closeM('mo-act'); toast('s','Refinanciamiento registrado',`Nueva tasa: ${pct(nt)}`); renderAll();
+      const ahorro_anual = ((c.tasa||0) - (nt||0)) * n2(c.saldo);
+      const nota = `Refi ${new Date().toLocaleDateString('es-CL')}${obs?' — '+obs:''}`;
+      // 1. Actualizar memoria local
+      DB = DB.map(x => x.id===id ? {
+        ...x, estado:'Refinanciado', tasa:nt||x.tasa, acreedor:nb,
+        vcto:nv, capital:nc, fechaRenov:new Date().toISOString().slice(0,10), nota
+      } : x);
+      closeM('mo-act');
+      toast('s','Refinanciamiento registrado',`Nueva tasa: ${pct(nt)}`);
+      renderAll();
+      // 2. Persistir en Google Sheets
+      persistirCambio(buildEvento('REFINANCIAMIENTO', c,
+        `Refinanciado. Tasa: ${pct(c.tasa)} → ${pct(nt)}. Nuevo acreedor: ${nb}. Nuevo vcto: ${nv}. ${obs}`,
+        {
+          tasa_anterior:   c.tasa ? (c.tasa*100).toFixed(4)+'%' : '—',
+          tasa_nueva:      nt ? (nt*100).toFixed(4)+'%' : '—',
+          acreedor_nuevo:  nb,
+          vcto_nuevo:      nv,
+          capital_nuevo:   nc,
+          ahorro_anual_uf: ahorro_anual.toFixed(2),
+          observacion:     obs
+        }
+      ));
     };
   }
   else if (tipo === 'nota') {
@@ -1114,8 +1401,14 @@ function accion(id, tipo) {
     B.innerHTML = `<div class="fg"><label class="fl">Nota</label><input class="fi" id="aa-nv" value="${c.nota||''}" placeholder="Escribe una observación..."></div>`;
     btn.textContent = 'Guardar Nota';
     btn.onclick = () => {
-      DB = DB.map(x => x.id===id ? {...x, nota:document.getElementById('aa-nv')?.value||''} : x);
-      closeM('mo-act'); toast('s','Nota guardada',''); renderAll();
+      const nuevaNota = document.getElementById('aa-nv')?.value || '';
+      // 1. Actualizar memoria local
+      DB = DB.map(x => x.id===id ? {...x, nota:nuevaNota} : x);
+      closeM('mo-act');
+      toast('s','Nota guardada','');
+      renderAll();
+      // 2. Persistir en Google Sheets
+      persistirCambio(buildEvento('NOTA', c, nuevaNota, { nota_texto: nuevaNota }));
     };
   }
   document.getElementById('mo-act').classList.add('on');
@@ -1143,8 +1436,14 @@ function editC(id) {
 function delC(id) {
   const c = DB.find(x=>x.id===id);
   if (!confirm(`¿Eliminar "${c?.deudor} · ${c?.acreedor}"?`)) return;
+  // 1. Actualizar memoria local
   DB = DB.filter(x=>x.id!==id);
-  toast('d','Crédito eliminado',''); renderAll();
+  toast('d','Crédito eliminado','');
+  renderAll();
+  // 2. Persistir eliminación en Google Sheets
+  if (c) persistirCambio(buildEvento('ELIMINACION', c,
+    `Crédito eliminado de la app. Saldo al momento: UF ${c.saldo}`, {}
+  ));
 }
 
 // ══════════════════════════════════════════
@@ -1569,6 +1868,12 @@ function simUpdate() {
 // ══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   renderAll();
+  // Auto-sync if URL is configured
+  if (SCRIPT_URL) {
+    syncFromSheet();
+  } else {
+    showSyncStatus('offline', 'Configure SCRIPT_URL para conectar con Google Sheets');
+  }
   setTimeout(() => {
     const venc = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto) < 0);
     const prox = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto)>=0 && dd(c.vcto)<=7);
