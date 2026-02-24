@@ -495,23 +495,23 @@ const HOJA_HISTORIAL = 'Historial';  // puedes cambiarla si quieres otro nombre
  */
 async function persistirCambio(evento) {
   if (!SCRIPT_URL) {
-    console.info('[PASIVOS360] Sin SCRIPT_URL — cambio guardado solo en memoria:', evento);
-    showSyncStatus('offline', 'Cambio en memoria · configura SCRIPT_URL para persistir');
+    showSyncStatus('offline', 'Modo local · sin conexión a Google Sheets');
     return false;
   }
-  showSyncStatus('syncing', 'Guardando...');
+  showSyncStatus('syncing', 'Guardando en Sheets...');
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode:   'no-cors',   // Google Apps Script requiere no-cors desde Pages
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'registrarCambio', data: evento })
-    });
-    showSyncStatus('ok', `Guardado en Sheets · ${new Date().toLocaleTimeString('es-CL')}`);
+    // Usamos GET con payload para evitar bloqueo CORS de Apps Script
+    const payload = encodeURIComponent(JSON.stringify(evento));
+    const url = `${SCRIPT_URL}?payload=${payload}`;
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    showSyncStatus('ok', `✓ Guardado en Sheets · ${new Date().toLocaleTimeString('es-CL')}`);
     return true;
   } catch(e) {
-    console.warn('[PASIVOS360] Error al guardar en Sheets:', e);
-    showSyncStatus('error', 'Error de red · cambio guardado localmente');
+    console.warn('[PASIVOS360] Error:', e);
+    showSyncStatus('error', 'Error al guardar — revisa la consola');
     return false;
   }
 }
