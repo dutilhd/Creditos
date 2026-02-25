@@ -501,18 +501,21 @@ async function persistirCambio(evento) {
   }
   showSyncStatus('syncing', 'Guardando en Sheets...');
   try {
-    // Usamos GET con payload para evitar bloqueo CORS de Apps Script
     const payload = encodeURIComponent(JSON.stringify(evento));
     const url = `${SCRIPT_URL}?payload=${payload}`;
     const res = await fetch(url, { method: 'GET' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if (json.error) throw new Error(json.error);
-    showSyncStatus('ok', `✓ Guardado en Sheets · ${new Date().toLocaleTimeString('es-CL')}`);
+    // ✅ Éxito — mostrar en status bar Y en toast
+    const hora = new Date().toLocaleTimeString('es-CL');
+    showSyncStatus('ok', `✓ Guardado en Sheets · fila ${json.fila} · ${hora}`);
+    toast('s', `✓ Guardado en Google Sheets`, `${evento.tipo_accion} · ${evento.deudor} · fila ${json.fila}`);
     return true;
   } catch(e) {
-    console.warn('[PASIVOS360] Error:', e);
-    showSyncStatus('error', 'Error al guardar — revisa la consola');
+    console.warn('[PASIVOS360] Error al guardar:', e.message);
+    showSyncStatus('error', `✗ Error: ${e.message}`);
+    toast('d', '✗ No se guardó en Sheets', e.message);
     return false;
   }
 }
