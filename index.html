@@ -582,10 +582,13 @@ async function cargarDesdeSheet() {
   try {
     const data = await sheetGet({ accion: 'leerCreditos' });
     if (data.creditos && data.creditos.length > 0) {
-      DB = data.creditos;
+      // Filtrar eliminados y normalizar campos
+      DB = data.creditos
+        .filter(c => c.estado !== 'ELIMINADO')
+        .map(c => normalizarCredito(c));
       DB_LOADED_FROM_SHEET = true;
       IS_CONNECTED = true;
-      showSyncStatus('ok', `✓ ${data.total} créditos cargados desde Sheets`);
+      showSyncStatus('ok', `✓ ${DB.length} créditos cargados desde Sheets`);
       renderAll();
     } else {
       // Sheet vacío — subir datos del HTML al Sheet por primera vez
@@ -600,6 +603,30 @@ async function cargarDesdeSheet() {
     showSyncStatus('error', 'Error de conexión — usando datos locales');
     IS_CONNECTED = false;
   }
+}
+
+// ── Normalizar crédito desde Sheet ───────
+function normalizarCredito(c) {
+  return {
+    id:          c.id          || c.ID          || ('x'+Math.random()),
+    tipo:        c.tipo        || c.Tipo         || 'Comerciales',
+    acreedor:    c.acreedor    || c.Acreedor     || '—',
+    deudor:      c.deudor      || c.Deudor       || '—',
+    num:         c.num         || c['N° Crédito']|| '',
+    fechaOrigen: c.fechaOrigen || '',
+    montoOrigen: +c.montoOrigen|| 0,
+    fechaRenov:  c.fechaRenov  || '',
+    vcto:        c.vcto        || '',
+    cuotaStr:    c.cuotaStr    || '',
+    capital:     +c.capital    || 0,
+    tasa:        +c.tasa       || 0,
+    tasaMensual: +c.tasaMensual|| 0,
+    interes:     c.interes != null ? +c.interes : null,
+    saldo:       +c.saldo      || 0,
+    cuota:       +c.cuota      || 0,
+    estado:      c.estado      || 'Pendiente',
+    nota:        c.nota        || '',
+  };
 }
 
 // ── GUARDAR un crédito en el Sheet ────────
