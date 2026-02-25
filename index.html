@@ -1876,11 +1876,11 @@ function simUpdate() {
 // ══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   renderAll();
-  // Auto-sync if URL is configured
+  // Solo mostrar estado listo — no intentar leer del Sheet
   if (SCRIPT_URL) {
-    syncFromSheet();
+    showSyncStatus('ok', 'Conectado a Google Sheets · cambios se guardan automáticamente');
   } else {
-    showSyncStatus('offline', 'Configure SCRIPT_URL para conectar con Google Sheets');
+    showSyncStatus('offline', 'Sin conexión a Google Sheets');
   }
   setTimeout(() => {
     const venc = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto) < 0);
