@@ -1882,12 +1882,15 @@ function simUpdate() {
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  renderAll();
-  // Cargar datos desde Google Sheets al iniciar
+document.addEventListener('DOMContentLoaded', async () => {
   if (SCRIPT_URL) {
-    cargarDesdeSheet();
+    // Vaciar DB para que no se vean datos viejos mientras carga
+    DB = [];
+    renderAll();
+    showSyncStatus('syncing', 'Cargando desde Google Sheets...');
+    await cargarDesdeSheet();
   } else {
+    renderAll();
     showSyncStatus('offline', 'Modo local — datos del HTML');
   }
   setTimeout(() => {
