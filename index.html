@@ -550,9 +550,11 @@ const LS_KEY = 'pasivos360_db_v1';
 // ── Guardar DB en localStorage ────────────
 function guardarLocal() {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(DB));
+    const json = JSON.stringify(DB);
+    localStorage.setItem(LS_KEY, json);
+    console.log('[PASIVOS360] Guardado en localStorage:', DB.length, 'creditos');
   } catch(e) {
-    console.warn('Error guardando en localStorage:', e);
+    console.warn('[PASIVOS360] Error guardando:', e);
   }
 }
 
@@ -560,16 +562,19 @@ function guardarLocal() {
 function cargarLocal() {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) {
+    console.log('[PASIVOS360] localStorage raw:', raw ? raw.length + ' chars' : 'vacío');
+    if (raw && raw.length > 10) {
       const data = JSON.parse(raw);
-      if (data && data.length > 0) {
+      if (Array.isArray(data) && data.length > 0) {
         DB = data;
+        console.log('[PASIVOS360] Cargados desde localStorage:', DB.length, 'creditos');
         return true;
       }
     }
   } catch(e) {
-    console.warn('Error leyendo localStorage:', e);
+    console.warn('[PASIVOS360] Error cargando localStorage:', e);
   }
+  console.log('[PASIVOS360] localStorage vacío — usando datos del HTML');
   return false;
 }
 
@@ -1803,16 +1808,15 @@ function simUpdate() {
 // INIT
 // ══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Cargar desde localStorage si existe (instantáneo)
-  const teníaLocal = cargarLocal();
-  if (teníaLocal) {
-    showSyncStatus('ok', `✓ ${DB.length} créditos cargados`);
-  } else {
-    showSyncStatus('ok', 'Datos del sistema cargados');
-  }
+  // 1. Intentar cargar desde localStorage
+  const teniaLocal = cargarLocal();
+  // 2. Renderizar con lo que hay (localStorage o HTML)
   renderAll();
-  if (SCRIPT_URL) {
-    // nada más — los cambios se guardan en localStorage automáticamente
+  // 3. Mostrar estado
+  if (teniaLocal) {
+    showSyncStatus('ok', '✓ ' + DB.length + ' creditos cargados');
+  } else {
+    showSyncStatus('ok', 'Sistema listo · ' + DB.length + ' creditos');
   }
   setTimeout(() => {
     const venc = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto) < 0);
