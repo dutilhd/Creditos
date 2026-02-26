@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>▲ISIDORA23 · Gestión de Pasivos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f16;--s1:#111820;--s2:#192028;--bd:#1e2d3d;--bd2:#263d52;
+  --tx:#eef4fb;--mu:#7a96b0;--ac:#c0392b;--ac2:#e74c3c;
+  --red:#e74c3c;--yel:#f39c12;--grn:#2ecc71;--gld:#f1c40f;
+  --tea:#1abc9c;--pur:#8e44ad;
+  --f0:'DM Serif Display',serif;--f1:'Syne',sans-serif;--fm:'DM Mono',monospace;
+  --fs-xs:11px;--fs-sm:13px;--fs-md:15px;--fs-lg:17px;--fs-xl:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--f1);font-size:var(--fs-md);overflow-x:hidden;line-height:1.5}
+/* SIDEBAR */
+#sb{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:100}
+.logo{padding:20px 18px 16px;border-bottom:1px solid var(--bd)}
+.logo-n{font-family:var(--f0);font-size:22px;letter-spacing:-.5px}
+.logo-a{color:var(--ac)}
+.logo-s{font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:4px;text-transform:uppercase;letter-spacing:2px}
+.nsc{padding:16px 14px 4px;font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:2px;font-weight:700}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:1px 7px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--mu);transition:all .15s;border:1px solid transparent;user-select:none}
+.ni:hover{background:var(--s2);color:var(--tx)}
+.ni.on{background:rgba(0,200,244,.08);border-color:rgba(0,200,244,.18);color:var(--ac)}
+.ni .ic{font-size:17px;width:20px;text-align:center;flex-shrink:0}
+.bdg{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:8px;font-family:var(--fm);font-weight:600}
+.bdg-r{background:rgba(255,63,63,.18);color:var(--red);border:1px solid rgba(255,63,63,.3)}
+.bdg-y{background:rgba(255,193,46,.12);color:var(--yel);border:1px solid rgba(255,193,46,.28)}
+.bdg-g{background:rgba(41,212,122,.1);color:var(--grn);border:1px solid rgba(41,212,122,.22)}
+.uf-box{margin:auto 10px 16px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
+.uf-lbl{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px}
+.uf-val{font-family:var(--fm);font-size:20px;color:var(--gld);font-weight:600;margin-top:4px}
+.uf-dt{font-size:10px;color:var(--mu);margin-top:2px}
+/* MAIN */
+#mn{margin-left:220px;min-height:100vh}
+.tb{position:sticky;top:0;background:rgba(6,16,26,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.tb-t{font-family:var(--f0);font-size:22px;letter-spacing:-.3px}
+.tb-r{display:flex;align-items:center;gap:12px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:0 0 6px var(--grn);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.dtag{font-family:var(--fm);font-size:11px;color:var(--mu);background:var(--s2);padding:4px 10px;border-radius:5px;border:1px solid var(--bd)}
+.btn-p{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-family:var(--f1);font-size:12px;font-weight:600;background:var(--ac);color:#000;transition:all .15s}
+.btn-p:hover{background:#26d0f8;transform:translateY(-1px)}
+/* PAGES */
+.pg{display:none;padding:22px 28px}
+.pg.on{display:block}
+/* KPI GRID */
+.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kc{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:22px 22px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s}
+.kc:hover{transform:translateY(-2px);border-color:var(--bd2)}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cc,var(--ac))}
+.kl{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.kv{font-family:var(--fm);font-size:26px;font-weight:600;margin:8px 0 4px;color:var(--cc,var(--ac))}
+.ks{font-size:13px;color:var(--mu)}
+.ki{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.13}
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:22px 24px;margin-bottom:20px}
+.ct{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--tx);margin-bottom:4px}
+.cs{font-size:13px;color:var(--mu);margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+/* BAR CHART */
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bl{font-family:var(--fm);font-size:13px;color:var(--mu);min-width:56px}
+.bb{flex:1;height:22px;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.25,.46,.45,.94)}
+.bv{font-family:var(--fm);font-size:13px;color:var(--mu);min-width:90px;text-align:right}
+/* TIMELINE */
+.tl{display:flex;flex-direction:column;gap:7px}
+.ti{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;transition:border-color .15s}
+.ti:hover{border-color:var(--bd2)}
+.ti.cl-r{border-left:3px solid var(--red)}
+.ti.cl-y{border-left:3px solid var(--yel)}
+.ti.cl-g{border-left:3px solid var(--grn)}
+.ti.cl-m{border-left:3px solid var(--mu);opacity:.55}
+.ti.cl-t{border-left:3px solid var(--tea)}
+.td{font-family:var(--fm);font-size:13px;color:var(--mu);min-width:90px;flex-shrink:0}
+.ti-info{flex:1;min-width:0}
+.tn{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tdt{font-size:13px;color:var(--mu);margin-top:2px}
+.tam{font-family:var(--fm);font-size:15px;font-weight:600;text-align:right;min-width:100px;flex-shrink:0}
+.dbdg{font-family:var(--fm);font-size:12px;padding:3px 9px;border-radius:5px;white-space:nowrap;flex-shrink:0;font-weight:700}
+.dbdg-r{background:rgba(255,63,63,.12);color:var(--red);border:1px solid rgba(255,63,63,.25)}
+.dbdg-y{background:rgba(255,193,46,.1);color:var(--yel);border:1px solid rgba(255,193,46,.22)}
+.dbdg-g{background:rgba(41,212,122,.08);color:var(--grn);border:1px solid rgba(41,212,122,.18)}
+.dbdg-m{background:rgba(83,125,152,.1);color:var(--mu);border:1px solid rgba(83,125,152,.2)}
+.dbdg-t{background:rgba(30,201,183,.1);color:var(--tea);border:1px solid rgba(30,201,183,.22)}
+.abts{display:flex;gap:5px;flex-shrink:0}
+.ab{font-family:var(--f1);font-size:12px;padding:6px 11px;border-radius:6px;border:1px solid var(--bd);cursor:pointer;background:var(--s1);color:var(--tx);transition:all .12s;font-weight:600;white-space:nowrap}
+.ab:hover{background:var(--s2)}
+.ab-p{border-color:rgba(41,212,122,.3);color:var(--grn)}
+.ab-p:hover{background:rgba(41,212,122,.08)}
+.ab-r{border-color:rgba(0,200,244,.28);color:var(--ac)}
+.ab-r:hover{background:rgba(0,200,244,.07)}
+.ab-d{border-color:rgba(255,63,63,.3);color:var(--red)}
+.ab-d:hover{background:rgba(255,63,63,.08)}
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:12px}
+.dt th{padding:11px 13px;text-align:left;color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;border-bottom:1px solid var(--bd);background:var(--s1);position:sticky;top:0;z-index:2}
+.dt td{padding:11px 13px;border-bottom:1px solid rgba(30,45,61,.6);vertical-align:middle;font-size:14px}
+.dt tr:hover td{background:rgba(255,255,255,.012)}
+.rchip{display:inline-block;padding:3px 9px;border-radius:5px;font-family:var(--fm);font-size:13px;font-weight:600}
+.tchip{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.tc-com{background:rgba(0,200,244,.08);color:var(--ac);border:1px solid rgba(0,200,244,.17)}
+.tc-mut{background:rgba(30,201,183,.08);color:var(--tea);border:1px solid rgba(30,201,183,.17)}
+.tc-bol{background:rgba(255,193,46,.08);color:var(--yel);border:1px solid rgba(255,193,46,.2)}
+/* MEJORAS */
+.mc{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:16px;border-left:3px solid var(--mc,var(--ac));transition:transform .2s,box-shadow .2s}
+.mc:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.m-sav{font-family:var(--fm);font-size:22px;font-weight:600;color:var(--grn);margin:8px 0 6px}
+.m-tit{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.4}
+.m-bod{font-size:13px;color:var(--mu);line-height:1.6}
+.ptag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;margin-top:9px}
+.pt-h{background:rgba(255,63,63,.12);color:var(--red);border:1px solid rgba(255,63,63,.22)}
+.pt-m{background:rgba(255,193,46,.09);color:var(--yel);border:1px solid rgba(255,193,46,.22)}
+.pt-l{background:rgba(41,212,122,.07);color:var(--grn);border:1px solid rgba(41,212,122,.18)}
+.m-accion{margin-top:10px;padding:9px 11px;background:var(--bg);border-radius:7px;border:1px solid var(--bd)}
+.m-accion-lbl{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px}
+.m-accion-txt{font-size:11px}
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center}
+.mo.on{display:flex}
+.md{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:26px 28px;width:480px;max-width:96vw;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:mi .22s cubic-bezier(.25,.46,.45,.94)}
+@keyframes mi{from{opacity:0;transform:scale(.95) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.md-t{font-family:var(--f0);font-size:24px;margin-bottom:6px}
+.md-s{font-size:11px;color:var(--mu);margin-bottom:18px}
+.fg{margin-bottom:12px}
+.fl{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;display:block}
+.fi,.fse{width:100%;background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:10px 13px;border-radius:8px;font-size:14px;font-family:var(--f1);outline:none;transition:border-color .15s}
+.fi:focus,.fse:focus{border-color:var(--ac)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:9px 18px;border-radius:7px;border:none;cursor:pointer;font-family:var(--f1);font-size:13px;font-weight:600;transition:all .15s}
+.btn-ok{background:var(--ac);color:#000}
+.btn-ok:hover{background:#26d0f8}
+.btn-del{background:var(--red);color:#fff}
+.btn-del:hover{background:#ff6666}
+.btn-gh{background:transparent;color:var(--mu);border:1px solid var(--bd)}
+.btn-gh:hover{color:var(--tx);border-color:var(--bd2)}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+/* INFO BOX */
+.ibox{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;margin-bottom:14px;display:grid}
+/* TOAST */
+#toasts{position:fixed;top:68px;right:18px;z-index:300;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;min-width:280px;animation:ti .22s cubic-bezier(.25,.46,.45,.94);font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toast-s{border-left:3px solid var(--grn)}
+.toast-d{border-left:3px solid var(--red)}
+.toast-w{border-left:3px solid var(--yel)}
+@keyframes ti{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+.t-t{font-weight:700;margin-bottom:3px;font-size:15px}
+.t-b{font-size:13px;color:var(--mu)}
+/* STATUS */
+.st-paid{color:var(--mu);text-decoration:line-through;font-style:italic}
+.st-refi{color:var(--tea)}
+/* LINK */
+.lnk{color:var(--ac);cursor:pointer;font-size:12px}
+.lnk:hover{text-decoration:underline}
+/* RESP */
+@media(max-width:860px){
+  #sb{width:54px}
+  .logo-s,.uf-box,.nsc,.ni span{display:none}
+  #mn{margin-left:54px}
+  .kg{grid-template-columns:1fr 1fr}
+  .g2,.g3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav id="sb">
+  <div class="logo" style="padding:16px 18px 14px">
+    <svg viewBox="0 0 200 46" xmlns="http://www.w3.org/2000/svg" style="width:168px;height:38px;display:block">
+      <polygon points="3,40 21,8 39,40" fill="#c0392b"/>
+      <text x="46" y="36" font-family="Syne,sans-serif" font-weight="700" font-size="27" fill="#ffffff" letter-spacing="-0.5">ISIDORA</text>
+      <text x="172" y="36" font-family="Syne,sans-serif" font-weight="700" font-size="27" fill="#c0392b" letter-spacing="-0.5">23</text>
+    </svg>
+    <div class="logo-s" style="margin-top:5px;font-size:9px">Gestión de Pasivos · 2026</div>
+  </div>
+  <div class="nsc">Principal</div>
+  <div class="ni on" data-pg="dashboard"><span class="ic">◈</span><span>Dashboard</span></div>
+  <div class="ni" data-pg="vencimientos"><span class="ic">⏳</span><span>Vencimientos</span><span class="bdg bdg-r" id="bdg-v">0</span></div>
+  <div class="ni" data-pg="carga"><span class="ic">📊</span><span>Carga Financiera</span></div>
+  <div class="nsc">Análisis</div>
+  <div class="ni" data-pg="creditos"><span class="ic">🏦</span><span>Mis Créditos</span></div>
+  <div class="ni" data-pg="mejoras"><span class="ic">💡</span><span>Oportunidades</span><span class="bdg bdg-y" id="bdg-m">5</span></div>
+  <div class="ni" data-pg="tasas"><span class="ic">📈</span><span>Tasas Mercado</span></div>
+  <div class="ni" data-pg="decisiones"><span class="ic">🧠</span><span>Toma de Decisiones</span></div>
+  <div class="nsc">Gestión</div>
+  <div class="ni" id="btn-add"><span class="ic">＋</span><span>Nuevo Crédito</span></div>
+  <div class="uf-box">
+    <div class="uf-lbl">UF HOY</div>
+    <div class="uf-val">$39.800</div>
+    <div class="uf-dt">23 Feb 2026</div>
+  </div>
+</nav>
+
+<main id="mn">
+  <div class="tb">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="tb-t" id="pg-title">Dashboard</div>
+    </div>
+    <div class="tb-r">
+      <div id="sync-bar" style="background:rgba(100,116,139,.08);border:1px solid rgba(100,116,139,.2);color:#64748b;padding:6px 14px;border-radius:6px;font-size:11px;font-family:var(--fm);display:flex;align-items:center;gap:6px;">
+        <span>⊘</span> Modo local
+      </div>
+      <button onclick="syncFromSheet()" style="background:transparent;border:1px solid var(--bd);color:var(--mu);padding:6px 11px;border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--f1);transition:all .15s" onmouseover="this.style.color='var(--tx)'" onmouseout="this.style.color='var(--mu)'">↻ Sync</button>
+      <div style="height:20px;width:1px;background:var(--bd)"></div>
+      <button class="btn-p" id="tb-add" style="background:var(--red);color:#fff">+ Crédito</button>
+    </div>
+  </div>
+
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <div class="pg on" id="pg-dashboard">
+    <div class="kg">
+      <div class="kc" style="--cc:var(--ac)"><div class="kl">Deuda Total</div><div class="kv" id="k-tot">—</div><div class="ks" id="k-tot2">—</div><div class="ki">🏗</div></div>
+      <div class="kc" style="--cc:var(--red)"><div class="kl">Vencen ≤ 60 días</div><div class="kv" id="k-urg">0</div><div class="ks">créditos comerciales activos</div><div class="ki">⚠️</div></div>
+      <div class="kc" style="--cc:var(--gld)"><div class="kl">Tasa Ponderada</div><div class="kv" id="k-rate">—</div><div class="ks">sobre saldo total UF</div><div class="ki">%</div></div>
+      <div class="kc" style="--cc:var(--grn)"><div class="kl">Carga Mutuo/Mes</div><div class="kv" id="k-men">—</div><div class="ks">cuotas hipotecarias</div><div class="ki">📅</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Próximos Vencimientos Comerciales</div>
+        <div class="cs">Ordenados por urgencia · click en acciones</div>
+        <div class="tl" id="vcto-mini"></div>
+        <div style="margin-top:10px"><span class="lnk" data-pg="vencimientos">Ver todos →</span></div>
+      </div>
+      <div class="card">
+        <div class="ct">Composición Cartera</div>
+        <div class="cs">Distribución por tipo · valores en UF</div>
+        <div id="comp-chart"></div>
+        <div id="comp-legend" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Carga Financiera 2026 — Cronograma Exacto</div>
+      <div class="cs">Pagos reales por mes según cronograma del archivo (UF)</div>
+      <div id="carga-mini"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ VENCIMIENTOS ══════════ -->
+  <div class="pg" id="pg-vencimientos">
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <select class="fse" id="vf-tipo" style="width:160px">
+        <option value="">Todos los tipos</option>
+        <option value="Comerciales">Comercial</option>
+        <option value="Mutuos">Mutuo</option>
+        <option value="Boleta Gtia.">Boleta Gtia.</option>
+      </select>
+      <select class="fse" id="vf-est" style="width:155px">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendientes</option>
+        <option value="Pagado">Pagados</option>
+        <option value="Refinanciado">Refinanciados</option>
+        <option value="Activo">Activos (Mutuos)</option>
+      </select>
+      <select class="fse" id="vf-deu" style="width:180px"><option value="">Todos los deudores</option></select>
+      <span style="font-family:var(--fm);font-size:12px;color:var(--mu);margin-left:auto" id="vf-cnt"></span>
+    </div>
+    <div class="tl" id="vcto-list"></div>
+  </div>
+
+  <!-- ══════════ CARGA ══════════ -->
+  <div class="pg" id="pg-carga">
+    <div class="card">
+      <div class="ct">Carga Financiera Mensual — Cronograma 2026</div>
+      <div class="cs">Datos exactos del archivo Excel · todos los pagos por mes en UF</div>
+      <div id="carga-full"></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct">Carga por Deudor</div><div class="cs">Total acumulado 2026 (UF)</div><div id="cd-deu"></div></div>
+      <div class="card"><div class="ct">Carga por Acreedor</div><div class="cs">Total acumulado 2026 (UF)</div><div id="cd-acr"></div></div>
+    </div>
+    <div class="card" style="padding:0;overflow:auto">
+      <div style="padding:16px 18px 6px"><div class="ct">Detalle por Deudor × Mes</div><div class="cs">Todos los pagos UF del cronograma</div></div>
+      <table class="dt" id="carga-tbl"></table>
+    </div>
+  </div>
+
+  <!-- ══════════ CRÉDITOS ══════════ -->
+  <div class="pg" id="pg-creditos">
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <select class="fse" id="cf-tipo" style="width:155px">
+        <option value="">Todos los tipos</option>
+        <option value="Comerciales">Comercial</option>
+        <option value="Mutuos">Mutuo</option>
+      </select>
+      <select class="fse" id="cf-deu" style="width:190px"><option value="">Todos los deudores</option></select>
+      <select class="fse" id="cf-est" style="width:155px">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Pagado">Pagado</option>
+        <option value="Refinanciado">Refinanciado</option>
+        <option value="Activo">Activo</option>
+      </select>
+      <span style="font-family:var(--fm);font-size:12px;color:var(--mu);margin-left:auto" id="cf-cnt"></span>
+      <button class="btn-p" id="cr-add" style="font-size:12px;padding:7px 13px">+ Nuevo</button>
+    </div>
+    <div class="card" style="padding:0;overflow:auto">
+      <table class="dt">
+        <thead><tr>
+          <th>N° Crédito</th><th>Deudor</th><th>Acreedor</th><th>Tipo</th>
+          <th style="text-align:right">Capital (UF)</th>
+          <th style="text-align:right">Tasa</th>
+          <th style="text-align:right">Interés (UF)</th>
+          <th style="text-align:right">Saldo (UF)</th>
+          <th>Vencimiento</th><th>Renovación</th><th>Estado</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="cr-body"></tbody>
+        <tfoot id="cr-foot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════ MEJORAS ══════════ -->
+  <div class="pg" id="pg-mejoras">
+    <div style="background:rgba(41,212,122,.04);border:1px solid rgba(41,212,122,.14);border-radius:11px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:center">
+      <div style="font-size:26px">💡</div>
+      <div>
+        <div style="font-weight:700;margin-bottom:3px">Análisis de Optimización de Cartera · Feb 2026</div>
+        <div style="font-size:12px;color:var(--mu)">Basado en tasas referenciales CMF Feb 2026. Oportunidades sobre créditos activos de la BBDD.</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;flex-shrink:0">
+        <div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px">Ahorro Potencial Anual</div>
+        <div style="font-family:var(--fm);font-size:22px;color:var(--grn);font-weight:500" id="sav-tot">—</div>
+      </div>
+    </div>
+    <div class="g3" id="mj-grid"></div>
+  </div>
+
+  <!-- ══════════ TASAS ══════════ -->
+  <div class="pg" id="pg-tasas">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Tasas Referenciales Mercado — Feb 2026</div>
+        <div class="cs">Fuente: CMF Chile · promedio por institución</div>
+        <div id="mkt-rates"></div>
+      </div>
+      <div class="card">
+        <div class="ct">Mis Tasas vs Mercado</div>
+        <div class="cs">Diferencia en pp · verde = bajo mercado · rojo = sobre mercado</div>
+        <div id="rate-cmp"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Semáforo de Tasas</div>
+      <div class="cs">Verde ≤ mercado · Amarillo ≤ 1pp sobre · Rojo > 1pp sobre</div>
+      <div id="rate-sem" style="display:flex;flex-wrap:wrap;gap:9px;margin-top:6px"></div>
+    </div>
+  </div>
+
+  <!-- DECISIONES -->
+  <div class="pg" id="pg-decisiones">
+    <!-- ALERT PANEL -->
+    <div id="alert-panel" style="margin-bottom:18px"></div>
+
+    <!-- SCENARIO SIMULATOR -->
+    <div class="g2" style="margin-bottom:18px">
+      <div class="card">
+        <div class="ct">🎯 Simulador de Refinanciamiento</div>
+        <div class="cs">Selecciona un crédito y simula el ahorro real al refinanciar</div>
+        <div class="fg">
+          <label class="fl">Crédito a simular</label>
+          <select class="fse" id="sim-sel" onchange="simUpdate()">
+            <option value="">— Selecciona un crédito —</option>
+          </select>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">Tasa Nueva (%)</label>
+            <input class="fi" id="sim-tasa" type="number" step="0.01" placeholder="5.20" oninput="simUpdate()">
+          </div>
+          <div class="fg">
+            <label class="fl">Plazo (meses)</label>
+            <input class="fi" id="sim-plazo" type="number" value="12" oninput="simUpdate()">
+          </div>
+        </div>
+        <div id="sim-result" style="background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:14px;margin-top:4px">
+          <div style="color:var(--mu);font-size:12px;text-align:center">Selecciona un crédito para ver la simulación</div>
+        </div>
+      </div>
+
+      <!-- SCORECARD -->
+      <div class="card">
+        <div class="ct">📋 Scorecard Financiero</div>
+        <div class="cs">Evaluación de la cartera en 5 dimensiones clave</div>
+        <div id="scorecard"></div>
+      </div>
+    </div>
+
+    <!-- DECISION MATRIX -->
+    <div class="card" style="margin-bottom:18px">
+      <div class="ct">⚡ Matriz de Decisiones Urgentes</div>
+      <div class="cs">Acciones ordenadas por impacto × urgencia — lo que necesitas hacer esta semana</div>
+      <div id="decision-matrix"></div>
+    </div>
+
+    <!-- WHAT-IF ANALYSIS -->
+    <div class="g2">
+      <div class="card">
+        <div class="ct">📊 Proyección: Si refinancias todo al mercado</div>
+        <div class="cs">Impacto en carga anual si toda la cartera comercial estuviera a tasa de mercado</div>
+        <div id="whatif-chart"></div>
+      </div>
+      <div class="card">
+        <div class="ct">🗓 Calendario de Renovaciones Críticas</div>
+        <div class="cs">Próximas 8 semanas — créditos que necesitan gestión activa</div>
+        <div id="renewal-cal"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<!-- Modal Agregar/Editar -->
+<div class="mo" id="mo-add">
+  <div class="md">
+    <div class="md-t" id="moa-t">Nuevo Crédito</div>
+    <div class="md-s">Todos los montos en UF</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Deudor</label><input class="fi" id="a-deu" placeholder="Ej: Nueva el Golf"></div>
+      <div class="fg"><label class="fl">Acreedor</label><input class="fi" id="a-acr" placeholder="Ej: Consorcio"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Tipo</label>
+        <select class="fse" id="a-tipo">
+          <option value="Comerciales">Comercial</option>
+          <option value="Mutuos">Mutuo</option>
+          <option value="Boleta Gtia.">Boleta Gtia.</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">N° Crédito</label><input class="fi" id="a-num" placeholder="Opcional"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Capital (UF)</label><input class="fi" id="a-cap" type="number" step="0.01" placeholder="0"></div>
+      <div class="fg"><label class="fl">Tasa Anual (%)</label><input class="fi" id="a-tasa" type="number" step="0.001" placeholder="5.680"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Interés Acumulado (UF)</label><input class="fi" id="a-int" type="number" step="0.01" placeholder="0"></div>
+      <div class="fg"><label class="fl">Saldo (UF)</label><input class="fi" id="a-sal" type="number" step="0.01" placeholder="0"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Vencimiento</label><input class="fi" id="a-vcto" type="date"></div>
+      <div class="fg"><label class="fl">Fecha Renovación</label><input class="fi" id="a-renov" type="date"></div>
+    </div>
+    <div class="fg"><label class="fl">Nota</label><input class="fi" id="a-nota" placeholder="Observación opcional"></div>
+    <div class="btn-row">
+      <button class="btn btn-gh" id="moa-cancel">Cancelar</button>
+      <button class="btn btn-ok" id="moa-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Acción -->
+<div class="mo" id="mo-act">
+  <div class="md">
+    <div class="md-t" id="mact-t">—</div>
+    <div class="md-s" id="mact-s">—</div>
+    <div id="mact-b"></div>
+    <div class="btn-row">
+      <button class="btn btn-gh" id="mact-cancel">Cancelar</button>
+      <button class="btn btn-ok" id="mact-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════
+// BACKEND CONFIG — GOOGLE APPS SCRIPT
+// ══════════════════════════════════════════
+// 👇 PEGA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT DESPUÉS DEL DEPLOY
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5lE-roRnEQMs7id7SLy_4JUjtJSNJypBBqE0O8j-c0d59tfIU8hL9mvyrknpJ_b62/exec';
+
+// ── Nombre de tu hoja "Historial" en Google Sheets ──
+const HOJA_HISTORIAL = 'Historial';  // puedes cambiarla si quieres otro nombre
+
+// ══════════════════════════════════════════
+// CAPA DE PERSISTENCIA — escribe a Google Sheets
+// cada acción queda registrada en la hoja "Historial"
+// ══════════════════════════════════════════
+
+/**
+ * Envía una fila al Apps Script para que la escriba en Google Sheets.
+ * No bloquea la UI — si falla, la app sigue funcionando en modo local.
+ *
+ * @param {Object} evento  - datos del evento a registrar
+ * @returns {Promise<boolean>} - true si guardó ok, false si falló
+ */
+async function persistirCambio(evento) {
+  if (!SCRIPT_URL) {
+    showSyncStatus('offline', 'Modo local · sin conexión a Google Sheets');
+    return false;
+  }
+  showSyncStatus('syncing', 'Guardando en Sheets...');
+  try {
+    const payload = encodeURIComponent(JSON.stringify(evento));
+    const url = `${SCRIPT_URL}?payload=${payload}`;
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    // ✅ Éxito — mostrar en status bar Y en toast
+    const hora = new Date().toLocaleTimeString('es-CL');
+    showSyncStatus('ok', `✓ Guardado en Sheets · fila ${json.fila} · ${hora}`);
+    toast('s', `✓ Guardado en Google Sheets`, `${evento.tipo_accion} · ${evento.deudor} · fila ${json.fila}`);
+    return true;
+  } catch(e) {
+    console.warn('[PASIVOS360] Error al guardar:', e.message);
+    showSyncStatus('error', `✗ Error: ${e.message}`);
+    toast('d', '✗ No se guardó en Sheets', e.message);
+    return false;
+  }
+}
+
+/**
+ * Construye el objeto "evento" estándar que se escribe como fila en Historial
+ */
+function buildEvento(tipo, credito, detalle, extras = {}) {
+  return {
+    timestamp:   new Date().toISOString(),
+    fecha_local: new Date().toLocaleDateString('es-CL'),
+    hora_local:  new Date().toLocaleTimeString('es-CL'),
+    tipo_accion: tipo,                    // PAGO | REFINANCIAMIENTO | NOTA | NUEVO | EDICION | ELIMINACION
+    credito_id:  credito.id || '—',
+    num_credito: credito.num || '—',
+    deudor:      credito.deudor || '—',
+    acreedor:    credito.acreedor || '—',
+    tipo_credito:credito.tipo || '—',
+    saldo_uf:    credito.saldo || 0,
+    tasa_actual: credito.tasa ? (credito.tasa * 100).toFixed(4) + '%' : '—',
+    vcto:        credito.vcto || '—',
+    detalle:     detalle,
+    ...extras
+  };
+}
+
+// ══════════════════════════════════════════
+// PERSISTENCIA: localStorage + Google Sheets
+// ══════════════════════════════════════════
+const LS_KEY = 'pasivos360_db_v1';
+
+// ── Guardar DB en localStorage ────────────
+function guardarLocal() {
+  try {
+    const json = JSON.stringify(DB);
+    localStorage.setItem(LS_KEY, json);
+    console.log('[PASIVOS360] Guardado en localStorage:', DB.length, 'creditos');
+  } catch(e) {
+    console.warn('[PASIVOS360] Error guardando:', e);
+  }
+}
+
+// ── Cargar DB desde localStorage ─────────
+function cargarLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    console.log('[PASIVOS360] localStorage raw:', raw ? raw.length + ' chars' : 'vacío');
+    if (raw && raw.length > 10) {
+      const data = JSON.parse(raw);
+      if (Array.isArray(data) && data.length > 0) {
+        DB = data;
+        console.log('[PASIVOS360] Cargados desde localStorage:', DB.length, 'creditos');
+        return true;
+      }
+    }
+  } catch(e) {
+    console.warn('[PASIVOS360] Error cargando localStorage:', e);
+  }
+  console.log('[PASIVOS360] localStorage vacío — usando datos del HTML');
+  return false;
+}
+
+// ── Enviar cambio al Sheet (historial) ────
+async function persistirCambio(evento) {
+  if (!SCRIPT_URL) return false;
+  showSyncStatus('syncing', 'Guardando...');
+  try {
+    const payload = encodeURIComponent(JSON.stringify(evento));
+    const res = await fetch(`${SCRIPT_URL}?payload=${payload}`);
+    const json = await res.json();
+    const hora = new Date().toLocaleTimeString('es-CL');
+    showSyncStatus('ok', `✓ Guardado · ${hora}`);
+    toast('s', '✓ Guardado en Google Sheets', `${evento.tipo_accion} · ${evento.deudor}`);
+    return true;
+  } catch(e) {
+    showSyncStatus('error', '✗ Error al guardar en Sheets');
+    return false;
+  }
+}
+
+function buildEvento(tipo, credito, detalle, extras = {}) {
+  return {
+    timestamp:    new Date().toISOString(),
+    fecha_local:  new Date().toLocaleDateString('es-CL'),
+    hora_local:   new Date().toLocaleTimeString('es-CL'),
+    tipo_accion:  tipo,
+    credito_id:   credito.id || '—',
+    num_credito:  credito.num || '—',
+    deudor:       credito.deudor || '—',
+    acreedor:     credito.acreedor || '—',
+    tipo_credito: credito.tipo || '—',
+    saldo_uf:     credito.saldo || 0,
+    tasa_actual:  credito.tasa ? (credito.tasa*100).toFixed(4)+'%' : '—',
+    vcto:         credito.vcto || '—',
+    detalle,
+    ...extras
+  };
+}
+
+// ── Status bar ────────────────────────────
+function showSyncStatus(state, msg) {
+  const el = document.getElementById('sync-bar');
+  if (!el) return;
+  const styles = {
+    ok:      { bg:'rgba(39,174,96,.12)',   border:'rgba(39,174,96,.25)',   color:'#27ae60', icon:'✓' },
+    syncing: { bg:'rgba(241,196,15,.08)',  border:'rgba(241,196,15,.2)',   color:'#f1c40f', icon:'⟳' },
+    error:   { bg:'rgba(231,76,60,.1)',    border:'rgba(231,76,60,.25)',   color:'#e74c3c', icon:'✕' },
+    offline: { bg:'rgba(100,116,139,.08)', border:'rgba(100,116,139,.2)',  color:'#64748b', icon:'⊘' },
+  };
+  const s = styles[state] || styles.offline;
+  el.style.cssText = `background:${s.bg};border:1px solid ${s.border};color:${s.color};padding:6px 14px;border-radius:6px;font-size:11px;font-family:var(--fm);display:flex;align-items:center;gap:6px;`;
+  el.innerHTML = `<span style="animation:${state==='syncing'?'spin 1s linear infinite':'none'}">${s.icon}</span> ${msg}`;
+}
+
+// ── Override saveCredit ───────────────────// saveCredit integrado directamente en la función original
+
+
+// ══════════════════════════════════════════
+// DATA — 100% del archivo Pasivos_para_AI.xlsx
+// ══════════════════════════════════════════
+const UF_VAL = 39800;
+const TODAY  = new Date('2026-02-23');
+
+// BBDD — 47 registros exactos
+let DB = [
+  {id:'r0', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340261643',fechaOrigen:'2025-02-13',montoOrigen:6207,fechaRenov:'2026-01-23',vcto:'2026-04-23',cuotaStr:'',capital:6207,tasa:0.0598,interes:92.79465,saldo:6299.79465,estado:'Pendiente',nota:''},
+  {id:'r1', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340269138',fechaOrigen:'2025-07-23',montoOrigen:2745,fechaRenov:'2026-01-23',vcto:'2026-04-23',cuotaStr:'',capital:2745,tasa:0.0598,interes:41.03775,saldo:2786.03775,estado:'Pendiente',nota:''},
+  {id:'r2', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340270507',fechaOrigen:'2025-09-01',montoOrigen:6048,fechaRenov:'2026-01-23',vcto:'2026-04-23',cuotaStr:'',capital:6048,tasa:0.0598,interes:90.4176,saldo:6138.4176,estado:'Pendiente',nota:''},
+  {id:'r3', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340271922',fechaOrigen:'2025-10-13',montoOrigen:5200,vcto:'2028-09-27',cuotaStr:'',capital:5200,tasa:0.06,interes:936,saldo:6136,estado:'Pendiente',nota:''},
+  {id:'r4', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340272807',fechaOrigen:'2025-11-03',montoOrigen:4800,vcto:'2028-09-27',cuotaStr:'',capital:4800,tasa:0.06,interes:847.2,saldo:5647.2,estado:'Pendiente',nota:''},
+  {id:'r5', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340273396',fechaOrigen:'2025-11-13',montoOrigen:5000,vcto:'2028-09-27',cuotaStr:'',capital:5000,tasa:0.06,interes:874.167,saldo:5874.167,estado:'Pendiente',nota:''},
+  {id:'r6', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340274587',fechaOrigen:'2025-12-09',montoOrigen:5000,vcto:'2028-09-27',cuotaStr:'',capital:5000,tasa:0.06,interes:852.5,saldo:5852.5,estado:'Pendiente',nota:''},
+  {id:'r7', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340276218',fechaOrigen:'2026-01-12',montoOrigen:5000,vcto:'2028-09-27',cuotaStr:'',capital:5000,tasa:0.06,interes:824.167,saldo:5824.167,estado:'Pendiente',nota:''},
+  {id:'r8', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'6340276766',fechaOrigen:'2026-01-23',montoOrigen:500,vcto:'2026-04-23',cuotaStr:'',capital:500,tasa:0.0598,interes:7.475,saldo:507.475,estado:'Pendiente',nota:''},
+  {id:'r9', tipo:'Comerciales',acreedor:'Consorcio',deudor:'Nueva el Golf',num:'',fechaOrigen:'2026-02-06',montoOrigen:5000,vcto:'2028-09-27',cuotaStr:'',capital:5000,tasa:0.0601,interes:804.672,saldo:5804.672,estado:'Pendiente',nota:''},
+  {id:'r10',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Alsacia',num:'6340149482',fechaOrigen:'2021-10-18',montoOrigen:158680.08,fechaRenov:'2025-11-05',vcto:'2026-02-24',cuotaStr:'',capital:54720.61,tasa:0.0563,interes:949.904,saldo:55670.512,estado:'Pendiente',nota:''},
+  {id:'r11',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Alsacia',num:'6340211252',fechaOrigen:'2023-04-26',montoOrigen:7600,fechaRenov:'2025-11-05',vcto:'2026-02-24',cuotaStr:'',capital:7600,tasa:0.0563,interes:131.93,saldo:7731.93,estado:'Pendiente',nota:''},
+  {id:'r12',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Las Condes 12.560',num:'6340270489',fechaOrigen:'2022-08-11',montoOrigen:1759000,fechaRenov:'2025-08-28',vcto:'2026-02-25',cuotaStr:'',capital:740433.455,tasa:0.0516,interes:19209.312,saldo:759642.767,estado:'Pendiente',nota:''},
+  {id:'r13',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Las Condes 12.560',num:'6340267258',fechaOrigen:'2025-05-30',montoOrigen:13170,fechaRenov:'2025-09-01',vcto:'2026-02-25',cuotaStr:'',capital:9670,tasa:0.0516,interes:245.328,saldo:9915.328,estado:'Pendiente',nota:''},
+  {id:'r14',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Rupanco',num:'6340218058',fechaOrigen:'2023-04-12',montoOrigen:44826.36,fechaRenov:'2026-01-13',vcto:'2026-07-09',cuotaStr:'',capital:29128.354,tasa:0.0568,interes:813.458,saldo:29941.811,estado:'Pendiente',nota:''},
+  {id:'r15',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Inv. I. Foster',num:'6340244003',fechaOrigen:'2024-03-21',montoOrigen:51618,fechaRenov:'2025-09-15',vcto:'2026-03-15',cuotaStr:'',capital:51618,tasa:0.0641,interes:1663.548,saldo:53281.548,estado:'Pendiente',nota:''},
+  {id:'r16',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Inv. I. Foster',num:'6340244012',fechaOrigen:'2024-03-21',montoOrigen:25987,fechaRenov:'2025-09-15',vcto:'2026-03-15',cuotaStr:'',capital:25987,tasa:0.0653,interes:853.189,saldo:26840.189,estado:'Pendiente',nota:''},
+  {id:'r17',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Inv. I. Foster',num:'6340253221',fechaOrigen:'2024-09-23',montoOrigen:2550,fechaRenov:'2026-01-13',vcto:'2026-07-09',cuotaStr:'',capital:2550,tasa:0.0568,interes:71.213,saldo:2621.213,estado:'Pendiente',nota:''},
+  {id:'r18',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Inv. I. Foster',num:'6340262791',fechaOrigen:'2025-02-28',montoOrigen:6400,vcto:'2026-02-19',cuotaStr:'',capital:6400,tasa:0.0542,interes:343.026,saldo:6743.026,estado:'Pendiente',nota:''},
+  {id:'r19',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340256411',fechaOrigen:'2024-11-14',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r20',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340257666',fechaOrigen:'2024-11-28',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r21',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340258476',fechaOrigen:'2024-12-12',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r22',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340259441',fechaOrigen:'2025-01-06',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r23',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340261305',fechaOrigen:'2025-02-06',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r24',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340263167',fechaOrigen:'2025-03-07',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r25',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340265008',fechaOrigen:'2025-04-10',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r26',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340265894',fechaOrigen:'2025-05-05',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r27',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340267557',fechaOrigen:'2025-06-05',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r28',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340268673',fechaOrigen:'2025-07-09',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r29',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340270092',fechaOrigen:'2025-08-21',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r30',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340270749',fechaOrigen:'2025-09-09',montoOrigen:4143,fechaRenov:'2025-12-30',vcto:'2026-03-30',cuotaStr:'',capital:4143,tasa:0.064,interes:66.288,saldo:4209.288,estado:'Pendiente',nota:''},
+  {id:'r31',tipo:'Comerciales',acreedor:'Consorcio',deudor:'Isidora 19',num:'6340275582',fechaOrigen:'2025-12-30',montoOrigen:2000,vcto:'2026-03-30',cuotaStr:'',capital:2000,tasa:0.064,interes:32,saldo:2032,estado:'Pendiente',nota:''},
+  {id:'r32',tipo:'Comerciales',acreedor:'BCI',deudor:'Isidora 19',num:'99973481',fechaOrigen:'2025-05-06',montoOrigen:20000,fechaRenov:'2025-09-08',vcto:'2026-03-24',cuotaStr:'',capital:20000,tasa:0.025505*12,tasaMensual:0.025505,interes:279.138,saldo:20279.138,estado:'Pendiente',nota:''},
+  {id:'r33',tipo:'Comerciales',acreedor:'BCI',deudor:'Isidora 19',num:'99973482',fechaOrigen:'2025-05-06',montoOrigen:5000,fechaRenov:'2025-09-08',vcto:'2026-03-24',cuotaStr:'',capital:5000,tasa:0.025505*12,tasaMensual:0.025505,interes:69.785,saldo:5069.785,estado:'Pendiente',nota:''},
+  {id:'r34',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6538219',fechaOrigen:'2024-09-23',montoOrigen:2010.05,fechaRenov:'2025-09-23',vcto:'2026-09-23',cuotaStr:'',capital:2010.05,tasa:0.0076*12,tasaMensual:0.0076,interes:185.863,saldo:2195.913,estado:'Pendiente',nota:''},
+  {id:'r35',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6743583',fechaOrigen:'2024-11-11',montoOrigen:879.397,fechaRenov:'2025-11-06',vcto:'2026-11-06',cuotaStr:'',capital:879.397,tasa:0.0078*12,tasaMensual:0.0078,interes:83.455,saldo:962.852,estado:'Pendiente',nota:''},
+  {id:'r36',tipo:'Comerciales',acreedor:'BICE',deudor:'Nueva el Golf',num:'6980696',fechaOrigen:'2025-01-27',montoOrigen:2512.563,fechaRenov:'2026-01-27',vcto:'2026-04-29',cuotaStr:'',capital:2512.563,tasa:0.0079*12,tasaMensual:0.0079,interes:60.871,saldo:2573.434,estado:'Pendiente',nota:''},
+  {id:'r37',tipo:'Comerciales',acreedor:'BICE',deudor:'Foster 23',num:'6865965',fechaOrigen:'2024-12-20',montoOrigen:4974.874,fechaRenov:'2025-12-15',vcto:'2026-06-15',cuotaStr:'',capital:4974.874,tasa:0.0078*12,tasaMensual:0.0078,interes:235.411,saldo:5210.285,estado:'Pendiente',nota:''},
+  {id:'r38',tipo:'Comerciales',acreedor:'BICE',deudor:'Foster 23',num:'6980644',fechaOrigen:'2025-01-27',montoOrigen:1306.533,fechaRenov:'2026-01-23',vcto:'2026-04-28',cuotaStr:'',capital:1306.533,tasa:0.0077*12,tasaMensual:0.0077,interes:31.858,saldo:1338.390,estado:'Pendiente',nota:''},
+  // MUTUOS
+  {id:'r39',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Nueva el Golf',num:'120789',fechaOrigen:'2022-12-27',montoOrigen:378578.65,vcto:'2048-01-10',proxVcto:'2026-02-10',cuotaStr:'37/300',capital:378578.65,tasa:0.048,interes:null,saldo:378578.65,cuota:1481.9869,estado:'Activo',nota:'Garantía hipotecaria'},
+  {id:'r40',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Las Condes 12.560',num:'',fechaOrigen:'2025-06-12',montoOrigen:534476.752,vcto:'2029-01-10',proxVcto:'2025-10-10',cuotaStr:'3/42',capital:534476.752,tasa:0.049,interes:null,saldo:534476.752,cuota:2182.447,estado:'Activo',nota:'Garantía hipotecaria'},
+  {id:'r41',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Las Condes 12.560',num:'',fechaOrigen:'2025-06-12',montoOrigen:106895.35,vcto:'2029-01-10',proxVcto:'2025-10-10',cuotaStr:'3/42',capital:106895.35,tasa:0.049,interes:null,saldo:106895.35,cuota:436.489,estado:'Activo',nota:''},
+  {id:'r42',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Las Condes 12.560 II',num:'',fechaOrigen:'2025-06-12',montoOrigen:495395.62,vcto:'2029-01-10',proxVcto:'2025-10-10',cuotaStr:'3/42',capital:495395.62,tasa:0.049,interes:null,saldo:495395.62,cuota:2022.865,estado:'Activo',nota:'Garantía hipotecaria'},
+  {id:'r43',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Las Condes 12.560 II',num:'',fechaOrigen:'2025-06-12',montoOrigen:99079.124,vcto:'2029-01-10',proxVcto:'2025-10-10',cuotaStr:'3/42',capital:99079.124,tasa:0.049,interes:null,saldo:99079.124,cuota:404.573,estado:'Activo',nota:''},
+  {id:'r44',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Inv. I. Foster',num:'',fechaOrigen:'2024-03-21',montoOrigen:53474,vcto:'2049-04-10',proxVcto:'2026-02-10',cuotaStr:'22/300',capital:53474,tasa:0.054,interes:null,saldo:53474,cuota:240.633,estado:'Activo',nota:'Garantía hipotecaria'},
+  {id:'r45',tipo:'Mutuos',acreedor:'Evoluciona',deudor:'Inv. I. Foster',num:'',fechaOrigen:'2024-03-21',montoOrigen:50474,vcto:'2049-04-10',proxVcto:'2026-02-10',cuotaStr:'22/300',capital:50474,tasa:0.054,interes:null,saldo:50474,cuota:227.133,estado:'Activo',nota:''},
+  {id:'r46',tipo:'Mutuos',acreedor:'Security',deudor:'Nueva el Golf',num:'300095',fechaOrigen:'2023-03-20',montoOrigen:50804.16,vcto:'2048-01-10',proxVcto:'2026-02-10',cuotaStr:'34/297',capital:50804.16,tasa:0.048,interes:null,saldo:50804.16,cuota:198.878,estado:'Activo',nota:'Garantía hipotecaria'},
+];
+
+// CRONOGRAMA exacto del archivo — suma por mes
+const CRON_MESES = {
+  '2026-03': 87744.18,
+  '2026-04': 23235.64,
+  '2026-05':  7346.45,
+  '2026-06':  7585.46,
+  '2026-07':  8290.86,
+  '2026-08':  7351.49,
+  '2026-09':  7535.91,
+  '2026-10':  7406.86,
+  '2026-11':  7517.26,
+  '2026-12':  7345.05,
+};
+const CRON_DEUDOR = {
+  'Isidora 19':       77892.40,
+  'Nueva El Golf':    34656.69,
+  'Las Condes 12.560':26189.40,
+  'Las Condes II':    24274.40,
+  'Inv. Isidora Foster': 7265.55,
+  'Rupanco':            813.46,
+  'Foster 23':          267.27,
+};
+// Cronograma by deudor × mes (for detail table) — key rows
+const CRON_DM = {
+  'Isidora 19':       {'2026-03':77892.40},
+  'Nueva El Golf':    {'2026-03':3013.48,'2026-04':16439.71,'2026-05':4062.93,'2026-06':4062.93,'2026-07':4062.93,'2026-08':4062.93,'2026-09':4062.93,'2026-10':4062.93,'2026-11':4062.93,'2026-12':4062.93},
+  'Las Condes 12.560':{'2026-03':2618.94,'2026-04':2618.94,'2026-05':2618.94,'2026-06':2618.94,'2026-07':2618.94,'2026-08':2618.94,'2026-09':2618.94,'2026-10':2618.94,'2026-11':2618.94,'2026-12':2618.94},
+  'Las Condes II':    {'2026-03':2427.44,'2026-04':2427.44,'2026-05':2427.44,'2026-06':2427.44,'2026-07':2427.44,'2026-08':2427.44,'2026-09':2427.44,'2026-10':2427.44,'2026-11':2427.44,'2026-12':2427.44},
+  'Inv. Isidora Foster':{'2026-03':3284.97,'2026-04':467.77,'2026-05':467.77,'2026-06':467.77,'2026-07':538.98,'2026-08':467.77,'2026-09':467.77,'2026-10':467.77,'2026-11':467.77,'2026-12':467.77},
+  'Rupanco':          {'2026-07':813.46},
+  'Foster 23':        {'2026-04':31.86,'2026-06':235.41},
+};
+
+// MARKET RATES
+const MKT = {
+  Comerciales:{avg:0.054,bancos:[{n:'BCI',t:0.051},{n:'Banco Chile',t:0.052},{n:'Itaú',t:0.053},{n:'Santander',t:0.054},{n:'BICE',t:0.056},{n:'Scotiabank',t:0.057},{n:'Consorcio',t:0.058}]},
+  Mutuos:{avg:0.0476,bancos:[{n:'Santander',t:0.0462},{n:'Itaú',t:0.0465},{n:'BCI',t:0.047},{n:'Banco Chile',t:0.048},{n:'Scotiabank',t:0.049},{n:'Evoluciona',t:0.049}]},
+};
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const n2 = v => v == null ? 0 : +v || 0;
+const fUF = v => {
+  const n = n2(v);
+  if (Math.abs(n) >= 1e6) return `UF ${(n/1e6).toFixed(3)}M`;
+  if (Math.abs(n) >= 1000) return `UF ${(n/1000).toFixed(1)}k`;
+  return `UF ${n.toLocaleString('es-CL',{maximumFractionDigits:1})}`;
+};
+const fCLP = v => {
+  const n = n2(v) * UF_VAL;
+  if (Math.abs(n) >= 1e9) return `$${(n/1e9).toFixed(2)}B`;
+  if (Math.abs(n) >= 1e6) return `$${(n/1e6).toFixed(1)}M`;
+  return `$${Math.round(n).toLocaleString('es-CL')}`;
+};
+const pct = v => v != null ? `${(v*100).toFixed(2)}%` : '—';
+const dd  = d => !d ? 9999 : Math.floor((new Date(d) - TODAY) / 86400000);
+
+function urgClass(c) {
+  if (c.estado === 'Pagado')      return 'cl-m';
+  if (c.estado === 'Refinanciado')return 'cl-t';
+  const d = dd(c.vcto);
+  if (d <  0)  return 'cl-r';
+  if (d <= 30) return 'cl-r';
+  if (d <= 90) return 'cl-y';
+  return 'cl-g';
+}
+function urgBdg(c) {
+  if (c.estado === 'Pagado')       return ['dbdg-m','Pagado'];
+  if (c.estado === 'Refinanciado') return ['dbdg-t','Refi'];
+  const d = dd(c.vcto);
+  if (d < 0)  return ['dbdg-r', `${Math.abs(d)}d VENC.`];
+  if (d === 0)return ['dbdg-r', 'HOY'];
+  if (d <= 30)return ['dbdg-r', `${d}d`];
+  if (d <= 90)return ['dbdg-y', `${d}d`];
+  return ['dbdg-g', `${d}d`];
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+const TITLES = {dashboard:'Dashboard',vencimientos:'Vencimientos',carga:'Carga Financiera',creditos:'Mis Créditos',mejoras:'Oportunidades de Mejora',tasas:'Tasas de Mercado',decisiones:'Toma de Decisiones'};
+
+function goPage(id) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ni[data-pg]').forEach(n => n.classList.remove('on'));
+  document.getElementById('pg-' + id).classList.add('on');
+  document.querySelectorAll(`.ni[data-pg="${id}"]`).forEach(n => n.classList.add('on'));
+  document.getElementById('pg-title').textContent = TITLES[id] || id;
+  renderAll();
+}
+
+document.querySelectorAll('.ni[data-pg]').forEach(n => {
+  n.addEventListener('click', () => goPage(n.dataset.pg));
+});
+document.querySelectorAll('.lnk[data-pg]').forEach(n => {
+  n.addEventListener('click', () => goPage(n.dataset.pg));
+});
+document.getElementById('btn-add').addEventListener('click', openAdd);
+document.getElementById('tb-add').addEventListener('click', openAdd);
+document.getElementById('cr-add')?.addEventListener('click', openAdd);
+
+// ══════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════
+function renderAll() {
+  rKPIs(); rVctoMini(); rComp(); rCargaMini();
+  rVctoFull(); rCargaFull(); rCreditos(); rMejoras(); rTasas(); rDecisiones(); rBadges();
+  // re-attach filter listeners each render
+  ['vf-tipo','vf-est','vf-deu'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.onchange = rVctoFull; }
+  });
+  ['cf-tipo','cf-deu','cf-est'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.onchange = rCreditos; }
+  });
+}
+
+// ══════════════════════════════════════════
+// KPIs
+// ══════════════════════════════════════════
+function rKPIs() {
+  const act = DB.filter(c => c.estado !== 'Pagado');
+  const tot = act.reduce((s,c) => s + n2(c.saldo), 0);
+  const urg = act.filter(c => {
+    const d = dd(c.vcto);
+    return c.tipo === 'Comerciales' && d >= 0 && d <= 60;
+  }).length;
+  let wn = 0, wd = 0;
+  act.forEach(c => { const s = n2(c.saldo); wn += (c.tasa||0)*s; wd += s; });
+  const avgR = wd > 0 ? wn/wd : 0;
+  const men = DB.filter(c => c.cuota && c.estado === 'Activo').reduce((s,c) => s + n2(c.cuota), 0);
+
+  document.getElementById('k-tot').textContent  = fUF(tot);
+  document.getElementById('k-tot2').textContent = `≈ ${fCLP(tot)} · ${DB.filter(c=>c.estado!=='Pagado').length} créditos`;
+  document.getElementById('k-urg').textContent  = urg;
+  document.getElementById('k-rate').textContent = pct(avgR);
+  document.getElementById('k-men').textContent  = fUF(men);
+}
+
+// ══════════════════════════════════════════
+// ITEM DE TIMELINE
+// ══════════════════════════════════════════
+function tiHTML(c, mini = false) {
+  const cls  = urgClass(c);
+  const [bdgCls, bdgTxt] = urgBdg(c);
+  const nota = c.nota ? ` · <em style="font-size:10px;color:var(--mu)">${c.nota}</em>` : '';
+  const renov = c.fechaRenov ? ` · Renov: ${c.fechaRenov}` : '';
+  const cuota = c.cuota ? ` · Cuota: ${fUF(c.cuota)}/mes` : '';
+  const mensual = c.tasaMensual ? ` · <span style='color:var(--yel);font-size:11px'>tasa mensual: ${pct(c.tasaMensual)}/mes</span>` : '';
+
+  const acts = mini ? '' : `<div class="abts">
+    ${c.estado !== 'Pagado' ? `<button class="ab ab-p" onclick="accion('${c.id}','pago')">✓ Pago</button>` : ''}
+    ${c.estado !== 'Pagado' && c.estado !== 'Refinanciado' ? `<button class="ab ab-r" onclick="accion('${c.id}','refi')">↺ Refi</button>` : ''}
+    <button class="ab" onclick="accion('${c.id}','nota')">📝</button>
+    <button class="ab ab-d" onclick="delC('${c.id}')">✕</button>
+  </div>`;
+
+  return `<div class="ti ${cls}" id="ti-${c.id}">
+    <div class="td">${c.vcto || '—'}</div>
+    <div class="ti-info">
+      <div class="tn ${c.estado==='Pagado'?'st-paid':c.estado==='Refinanciado'?'st-refi':''}">${c.deudor} · ${c.acreedor}</div>
+      <div class="tdt">${c.tipo} · ${c.num||'—'}${renov}${cuota}${mensual}${nota}</div>
+    </div>
+    <div class="tam">${fUF(c.saldo)}</div>
+    <span class="dbdg ${bdgCls}">${bdgTxt}</span>
+    ${acts}
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+// VCTO MINI
+// ══════════════════════════════════════════
+function rVctoMini() {
+  const el = document.getElementById('vcto-mini'); if (!el) return;
+  const list = DB.filter(c => c.vcto && c.tipo === 'Comerciales' && c.estado !== 'Pagado')
+    .sort((a,b) => dd(a.vcto) - dd(b.vcto)).slice(0, 6);
+  el.innerHTML = list.map(c => tiHTML(c, true)).join('');
+}
+
+// ══════════════════════════════════════════
+// VCTO FULL
+// ══════════════════════════════════════════
+function rVctoFull() {
+  const el = document.getElementById('vcto-list'); if (!el) return;
+  const ft = document.getElementById('vf-tipo')?.value || '';
+  const fe = document.getElementById('vf-est')?.value  || '';
+  const fd = document.getElementById('vf-deu')?.value  || '';
+
+  // populate deudor filter once
+  const vfd = document.getElementById('vf-deu');
+  if (vfd && vfd.options.length <= 1) {
+    [...new Set(DB.map(c => c.deudor))].sort().forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d; vfd.appendChild(o);
+    });
+  }
+
+  let list = DB
+    .filter(c => !ft || c.tipo === ft)
+    .filter(c => !fe || c.estado === fe)
+    .filter(c => !fd || c.deudor === fd)
+    .sort((a,b) => {
+      if (a.estado==='Pagado' && b.estado!=='Pagado') return 1;
+      if (b.estado==='Pagado' && a.estado!=='Pagado') return -1;
+      return dd(a.vcto) - dd(b.vcto);
+    });
+
+  document.getElementById('vf-cnt').textContent = `${list.length} registros`;
+  el.innerHTML = list.length
+    ? list.map(c => tiHTML(c, false)).join('')
+    : '<div style="text-align:center;color:var(--mu);padding:40px">Sin resultados con los filtros aplicados.</div>';
+}
+
+// ══════════════════════════════════════════
+// COMPOSICIÓN
+// ══════════════════════════════════════════
+function rComp() {
+  const el = document.getElementById('comp-chart'); if (!el) return;
+  const byT = {};
+  DB.filter(c => c.estado !== 'Pagado').forEach(c => { byT[c.tipo] = (byT[c.tipo]||0) + n2(c.saldo); });
+  const tot = Object.values(byT).reduce((s,v) => s+v, 0);
+  const cols = {Comerciales:'var(--ac)', Mutuos:'var(--tea)', 'Boleta Gtia.':'var(--yel)'};
+  const ent = Object.entries(byT).sort((a,b) => b[1]-a[1]);
+
+  el.innerHTML = `<div style="display:flex;gap:7px;align-items:flex-end;height:90px">
+    ${ent.map(([t,v]) => {
+      const p = Math.max(4, (v/tot*100));
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div style="font-family:var(--fm);font-size:9px;color:var(--mu)">${(v/tot*100).toFixed(0)}%</div>
+        <div style="width:100%;height:${p}px;background:${cols[t]||'var(--mu)'};border-radius:3px 3px 0 0;max-height:80px"></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  document.getElementById('comp-legend').innerHTML = ent.map(([t,v]) => `
+    <div style="display:flex;align-items:center;gap:5px">
+      <div style="width:7px;height:7px;border-radius:2px;background:${cols[t]||'var(--mu)'}"></div>
+      <span style="font-size:11px;color:var(--mu)">${t}</span>
+      <span style="font-family:var(--fm);font-size:11px">${fUF(v)}</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// CARGA MINI
+// ══════════════════════════════════════════
+function rCargaMini() {
+  const el = document.getElementById('carga-mini'); if (!el) return;
+  const meses = Object.keys(CRON_MESES);
+  const vals  = Object.values(CRON_MESES);
+  const mx    = Math.max(...vals);
+  const labels = {'2026-03':'Mar','2026-04':'Abr','2026-05':'May','2026-06':'Jun','2026-07':'Jul','2026-08':'Ago','2026-09':'Sep','2026-10':'Oct','2026-11':'Nov','2026-12':'Dic'};
+  el.innerHTML = meses.map((m,i) => {
+    const v = vals[i];
+    const p = (v/mx*100).toFixed(0);
+    const col = v>mx*.8 ? 'var(--red)' : v>mx*.3 ? 'var(--yel)' : 'var(--tea)';
+    return `<div class="brow"><div class="bl" style="min-width:40px">${labels[m]}</div>
+      <div class="bb"><div class="bf" style="width:${p}%;background:${col}"></div></div>
+      <div class="bv">${fUF(v)}</div></div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// CARGA FULL
+// ══════════════════════════════════════════
+function rCargaFull() {
+  const elF = document.getElementById('carga-full'); if (!elF) return;
+  const meses = Object.keys(CRON_MESES);
+  const vals  = Object.values(CRON_MESES);
+  const mx    = Math.max(...vals);
+  const labels = {'2026-03':'Mar 26','2026-04':'Abr 26','2026-05':'May 26','2026-06':'Jun 26','2026-07':'Jul 26','2026-08':'Ago 26','2026-09':'Sep 26','2026-10':'Oct 26','2026-11':'Nov 26','2026-12':'Dic 26'};
+  elF.innerHTML = meses.map((m,i) => {
+    const v = vals[i];
+    const p = (v/mx*100).toFixed(0);
+    const col = v>mx*.8 ? 'var(--red)' : v>mx*.3 ? 'var(--yel)' : 'var(--ac)';
+    return `<div class="brow" style="margin-bottom:6px">
+      <div class="bl" style="min-width:58px">${labels[m]}</div>
+      <div class="bb" style="height:28px"><div class="bf" style="width:${p}%;background:${col}"></div></div>
+      <div class="bv" style="min-width:90px">${fUF(v)}</div></div>`;
+  }).join('');
+
+  // by deudor
+  const dEnt = Object.entries(CRON_DEUDOR).sort((a,b) => b[1]-a[1]);
+  const mxD = dEnt[0]?.[1]||1;
+  document.getElementById('cd-deu').innerHTML = dEnt.map(([d,v]) => `
+    <div class="brow" style="margin-bottom:7px">
+      <div style="min-width:140px;font-size:11px;color:var(--mu)">${d}</div>
+      <div class="bb"><div class="bf" style="width:${(v/mxD*100).toFixed(0)}%;background:var(--ac)"></div></div>
+      <div class="bv">${fUF(v)}</div></div>`).join('');
+
+  // by acreedor (from DB)
+  const byAcr = {};
+  DB.filter(c=>c.estado!=='Pagado').forEach(c => {byAcr[c.acreedor]=(byAcr[c.acreedor]||0)+n2(c.saldo);});
+  const aEnt = Object.entries(byAcr).sort((a,b)=>b[1]-a[1]);
+  const mxA = aEnt[0]?.[1]||1;
+  document.getElementById('cd-acr').innerHTML = aEnt.map(([a,v]) => `
+    <div class="brow" style="margin-bottom:7px">
+      <div style="min-width:140px;font-size:11px;color:var(--mu)">${a}</div>
+      <div class="bb"><div class="bf" style="width:${(v/mxA*100).toFixed(0)}%;background:var(--tea)"></div></div>
+      <div class="bv">${fUF(v)}</div></div>`).join('');
+
+  // detail table
+  const tbl = document.getElementById('carga-tbl'); if (!tbl) return;
+  const msLabels = meses.map(m => labels[m]);
+  const deudores = Object.keys(CRON_DM);
+  tbl.innerHTML = `<thead><tr>
+    <th>Deudor</th>
+    ${msLabels.map(l=>`<th style="text-align:right">${l}</th>`).join('')}
+    <th style="text-align:right">Total</th>
+  </tr></thead><tbody>
+    ${deudores.map(d => {
+      const row = meses.map(m => (CRON_DM[d]&&CRON_DM[d][m])||0);
+      const tot = row.reduce((s,v)=>s+v,0);
+      return `<tr>
+        <td style="font-weight:600">${d}</td>
+        ${row.map(v => `<td style="text-align:right;font-family:var(--fm);font-size:11px">${v>0?fUF(v):'—'}</td>`).join('')}
+        <td style="text-align:right;font-family:var(--fm);font-weight:700;color:var(--ac)">${fUF(tot)}</td>
+      </tr>`;
+    }).join('')}
+    <tr style="background:var(--s1);border-top:2px solid var(--bd)">
+      <td style="font-weight:700;color:var(--gld);padding:9px 11px">TOTAL</td>
+      ${vals.map(v=>`<td style="text-align:right;font-family:var(--fm);font-weight:700;color:var(--gld)">${fUF(v)}</td>`).join('')}
+      <td style="text-align:right;font-family:var(--fm);font-weight:700;color:var(--gld)">${fUF(vals.reduce((s,v)=>s+v,0))}</td>
+    </tr>
+  </tbody>`;
+}
+
+// ══════════════════════════════════════════
+// CRÉDITOS TABLE
+// ══════════════════════════════════════════
+function rCreditos() {
+  const tb = document.getElementById('cr-body');
+  const tf = document.getElementById('cr-foot');
+  if (!tb) return;
+
+  // populate deudor filter once
+  const cfd = document.getElementById('cf-deu');
+  if (cfd && cfd.options.length <= 1) {
+    [...new Set(DB.map(c=>c.deudor))].sort().forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d; cfd.appendChild(o);
+    });
+  }
+
+  const ft = document.getElementById('cf-tipo')?.value || '';
+  const fd = document.getElementById('cf-deu')?.value  || '';
+  const fe = document.getElementById('cf-est')?.value  || '';
+  const list = DB.filter(c => (!ft||c.tipo===ft) && (!fd||c.deudor===fd) && (!fe||c.estado===fe));
+  document.getElementById('cf-cnt').textContent = `${list.length} registros`;
+
+  const rc = t => t>0.08?'var(--red)':t>0.06?'var(--yel)':t>0.04?'var(--gld)':'var(--grn)';
+
+  tb.innerHTML = list.map(c => {
+    const d = dd(c.vcto);
+    const [bdgCls,bdgTxt] = c.vcto && c.estado==='Pendiente'
+      ? (d<0?['dbdg-r','VENC.']:d<=60?['dbdg-r',d+'d']:d<=90?['dbdg-y',d+'d']:['dbdg-g',d+'d'])
+      : ['',''];
+    const dBdg = bdgCls ? `<span class="dbdg ${bdgCls}" style="margin-left:4px">${bdgTxt}</span>` : '';
+    const estCol = {Pagado:'var(--mu)',Refinanciado:'var(--tea)',Activo:'var(--grn)',Pendiente:'var(--yel)'}[c.estado]||'var(--tx)';
+    return `<tr>
+      <td><span style="font-family:var(--fm);font-size:10px;color:var(--mu)">${c.num||'—'}</span></td>
+      <td class="${c.estado==='Pagado'?'st-paid':c.estado==='Refinanciado'?'st-refi':''}" style="font-weight:600">${c.deudor}</td>
+      <td style="color:var(--mu)">${c.acreedor}</td>
+      <td><span class="tchip ${c.tipo==='Mutuos'?'tc-mut':c.tipo==='Boleta Gtia.'?'tc-bol':'tc-com'}">${c.tipo==='Mutuos'?'Mutuo':c.tipo==='Boleta Gtia.'?'Boleta':'Comerc.'}</span></td>
+      <td style="font-family:var(--fm);text-align:right">${c.capital!=null?fUF(c.capital):'—'}</td>
+      <td style="text-align:right">
+        <span class="rchip" style="color:${rc(c.tasa)};background:${rc(c.tasa)}18;border:1px solid ${rc(c.tasa)}33">${pct(c.tasa)}</span>
+        ${c.tasaMensual?`<span style="font-size:9px;color:var(--mu);display:block;margin-top:2px">${pct(c.tasaMensual)}/mes</span>`:''}
+      </td>
+      <td style="font-family:var(--fm);font-size:11px;text-align:right;color:var(--mu)">${c.interes!=null?fUF(c.interes):'—'}</td>
+      <td style="font-family:var(--fm);font-weight:700;text-align:right">${fUF(c.saldo)}</td>
+      <td>${c.vcto||'—'}${dBdg}</td>
+      <td style="font-size:11px;color:var(--mu)">${c.fechaRenov||'—'}</td>
+      <td><span style="color:${estCol};font-size:12px">${c.estado}</span></td>
+      <td><div style="display:flex;gap:4px">
+        ${c.estado!=='Pagado'?`<button class="ab ab-p" onclick="accion('${c.id}','pago')" title="Pago">✓</button>`:''}
+        ${c.estado!=='Pagado'&&c.estado!=='Refinanciado'?`<button class="ab ab-r" onclick="accion('${c.id}','refi')" title="Refinanciar">↺</button>`:''}
+        <button class="ab" onclick="editC('${c.id}')" title="Editar">✏</button>
+        <button class="ab ab-d" onclick="delC('${c.id}')" title="Eliminar">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  const tot = list.reduce((s,c)=>s+n2(c.saldo),0);
+  tf.innerHTML = `<tr style="background:var(--s1);border-top:2px solid var(--bd)">
+    <td colspan="4" style="padding:9px 11px;font-weight:700;color:var(--gld)">TOTAL (${list.length} créditos)</td>
+    <td colspan="3"></td>
+    <td style="font-family:var(--fm);font-weight:700;color:var(--gld);text-align:right;padding:9px 11px">${fUF(tot)}</td>
+    <td colspan="4"></td>
+  </tr>`;
+}
+
+// ══════════════════════════════════════════
+// MEJORAS
+// ══════════════════════════════════════════
+function rMejoras() {
+  const el = document.getElementById('mj-grid');
+  const sEl = document.getElementById('sav-tot');
+  if (!el) return;
+
+  const i19  = DB.filter(c=>c.deudor==='Isidora 19'&&c.acreedor==='Consorcio'&&c.estado!=='Pagado').reduce((s,c)=>s+n2(c.saldo),0);
+  const als  = DB.filter(c=>c.deudor==='Alsacia'&&c.estado!=='Pagado').reduce((s,c)=>s+n2(c.saldo),0);
+  const rup  = DB.filter(c=>c.deudor==='Rupanco'&&c.estado!=='Pagado').reduce((s,c)=>s+n2(c.saldo),0);
+  const ifos = DB.filter(c=>c.deudor==='Inv. I. Foster'&&c.acreedor==='Consorcio'&&c.estado!=='Pagado').reduce((s,c)=>s+n2(c.saldo),0);
+  const mutHigh = DB.filter(c=>c.tipo==='Mutuos'&&c.tasa>=0.054&&c.estado!=='Pagado').reduce((s,c)=>s+n2(c.saldo),0);
+
+  const mejoras = [
+    {
+      icon:'🔥', prio:'Alta', pcls:'pt-h', col:'var(--red)',
+      title:`Refinanciar Isidora 19 — Consorcio 6.4%`,
+      saving: i19*(0.064-0.052),
+      body:`Isidora 19 tiene 13 créditos en Consorcio al 6.4% anual (saldo total ${fUF(i19)}). El mercado comercial actual está en ~5.2%. Refinanciar con BCI (actual acreedor con tasa 2.55%) o Banco Chile puede ahorrar ~1.2pp anual. Todos vencen el 30-Mar-2026 — ventana inmediata de negociación.`,
+      accion:'Contactar BCI antes del 30/Mar para consolidar y mejorar tasa. BCI ya tiene relación establecida con Isidora 19.'
+    },
+    {
+      icon:'⚡', prio:'Alta', pcls:'pt-h', col:'var(--yel)',
+      title:`Refinanciar Alsacia — Consorcio 5.63%`,
+      saving: als*(0.0563-0.051),
+      body:`Alsacia tiene 2 créditos en Consorcio al 5.63% (saldo ${fUF(als)}). El mercado está en 5.1% para BCI. Ambos vencen el 24-Feb-2026 — ya vencidos o inminentes. Requiere acción inmediata para renovar o refinanciar.`,
+      accion:'Renovar URGENTE con Consorcio o portar a BCI/Banco Chile. Créditos r10 y r11 en estado crítico.'
+    },
+    {
+      icon:'📉', prio:'Alta', pcls:'pt-h', col:'var(--pur)',
+      title:`Reducir Tasa Inv. I. Foster — Consorcio 6.41%-6.53%`,
+      saving: ifos*(0.0647-0.054),
+      body:`Foster tiene 4 créditos en Consorcio entre 5.42% y 6.53% (saldo total ${fUF(ifos)}). Los de 6.41% y 6.53% (${fUF(53281+26840)}) vencen Mar-2026. Refinanciar estos 2 ahorraría ~1.5pp anual.`,
+      accion:'Solicitar oferta a Banco Chile o BCI para los créditos r15 y r16 antes del 15/Mar-2026.',
+    },
+    {
+      icon:'🏠', prio:'Media', pcls:'pt-m', col:'var(--tea)',
+      title:`Portabilidad Mutuos Evoluciona 5.4%`,
+      saving: mutHigh*(0.054-0.0465),
+      body:`Los 2 mutuos de Inv. I. Foster con Evoluciona al 5.4% anual (saldo ${fUF(mutHigh)}) están 0.9pp sobre el mercado actual de Itaú (4.65%) o Santander (4.62%). Portabilidad hipotecaria puede generar un ahorro significativo en el largo plazo.`,
+      accion:'Solicitar simulación de portabilidad a Santander o Itaú. Los plazos son 2049 — el ahorro a largo plazo es muy relevante.'
+    },
+    {
+      icon:'🔗', prio:'Media', pcls:'pt-m', col:'var(--ac)',
+      title:`Consolidar Créditos Nueva el Golf — Consorcio ~6%`,
+      saving: DB.filter(c=>c.deudor==='Nueva el Golf'&&c.acreedor==='Consorcio'&&c.estado!=='Pagado').reduce((s,c)=>s+n2(c.saldo),0)*(0.06-0.051),
+      body:`Nueva el Golf tiene 10 créditos en Consorcio entre 5.98% y 6.01% (varios hasta 2028). Consolidarlos en una sola línea reduciría carga administrativa y permitiría negociar un spread menor por volumen.`,
+      accion:'Proponer a Consorcio consolidación de la línea de Nueva el Golf en un crédito revolvente con tasa ~5.1-5.3%.'
+    },
+    {
+      icon:'✅', prio:'Baja', pcls:'pt-l', col:'var(--grn)',
+      title:`Mantener Ventaja BCI — Isidora 19 2.55%`,
+      saving: null,
+      body:`Los 2 créditos de Isidora 19 con BCI a 2.5505% anual son los más competitivos de toda la cartera. Esta es una relación preferencial valiosa. Renovar al vencimiento (Mar-2026) y explorar si puede extenderse a otros deudores del grupo.`,
+      accion:'Renovar créditos BCI 99973481 y 99973482 antes del 24/Mar-2026 en las mismas condiciones. Presentar al banco el resto de la cartera para ampliar.'
+    },
+  ];
+
+  let totSav = 0;
+  mejoras.forEach(m => { if (m.saving) totSav += m.saving; });
+  if (sEl) sEl.textContent = fUF(totSav);
+
+  el.innerHTML = mejoras.map(m => `
+    <div class="mc" style="--mc:${m.col}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="font-size:22px">${m.icon}</div>
+        <span class="ptag ${m.pcls}">Prioridad ${m.prio}</span>
+      </div>
+      <div class="m-tit">${m.title}</div>
+      <div class="m-sav">${m.saving ? `${fUF(m.saving)} / año` : 'Ahorro operativo'}</div>
+      <div class="m-bod">${m.body}</div>
+      <div class="m-accion">
+        <div class="m-accion-lbl">Acción recomendada</div>
+        <div class="m-accion-txt">${m.accion}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// TASAS
+// ══════════════════════════════════════════
+function rTasas() {
+  const mEl = document.getElementById('mkt-rates');
+  const rEl = document.getElementById('rate-cmp');
+  const bEl = document.getElementById('rate-sem');
+  if (!mEl) return;
+
+  mEl.innerHTML = Object.entries(MKT).map(([tipo,d]) => `
+    <div style="margin-bottom:14px">
+      <div style="font-size:9px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">${tipo} · Promedio ${pct(d.avg)}</div>
+      ${d.bancos.map(b => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="min-width:110px;font-size:11px;color:var(--mu)">${b.n}</div>
+        <div style="flex:1;height:16px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${(b.t/0.1*200).toFixed(0)}px;border-radius:3px;background:${b.t<=d.avg?'var(--grn)':b.t<=d.avg+0.005?'var(--yel)':'var(--red)'}"></div>
+        </div>
+        <div style="font-family:var(--fm);font-size:11px;color:${b.t<=d.avg?'var(--grn)':'var(--mu)'};min-width:44px">${pct(b.t)}</div>
+      </div>`).join('')}
+    </div>`).join('');
+
+  const myR = DB.filter(c=>c.tasa>0&&c.estado!=='Pagado').sort((a,b)=>b.tasa-a.tasa).slice(0,14);
+  const mxR = Math.max(...myR.map(c=>c.tasa), 0.1);
+  rEl.innerHTML = myR.map(c => {
+    const mkt = MKT[c.tipo]?.avg || 0.054;
+    const diff = c.tasa - mkt;
+    const col = diff>0.01?'var(--red)':diff>0?'var(--yel)':'var(--grn)';
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="min-width:110px;font-size:11px;color:var(--mu);line-height:1.2">${c.deudor.slice(0,13)}</div>
+      <div style="flex:1;height:16px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${(c.tasa/mxR*200).toFixed(0)}px;border-radius:3px;background:${col}"></div>
+      </div>
+      <div style="font-family:var(--fm);font-size:11px;color:${col};min-width:44px">${pct(c.tasa)}</div>
+      <div style="font-size:10px;color:${col};min-width:50px">${diff>=0?'+':''}${pct(diff)}</div>
+    </div>`;
+  }).join('');
+
+  if (bEl) bEl.innerHTML = DB.filter(c=>c.tasa>0&&c.estado!=='Pagado').map(c => {
+    const mkt = MKT[c.tipo]?.avg || 0.054;
+    const diff = c.tasa - mkt;
+    const col = diff>0.01?'var(--red)':diff>0?'var(--yel)':'var(--grn)';
+    return `<div style="background:${col}11;border:1px solid ${col}30;border-left:3px solid ${col};border-radius:9px;padding:10px 12px;min-width:130px">
+      <div style="font-size:10px;color:var(--mu)">${c.deudor}</div>
+      <div style="font-size:11px;margin:2px 0">${c.acreedor}</div>
+      <div style="font-family:var(--fm);font-size:16px;color:${col};font-weight:500">${pct(c.tasa)}</div>
+      <div style="font-size:10px;color:${col}">${diff>=0?'▲ ':'▼ '}${pct(Math.abs(diff))} vs mkt</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// BADGES
+// ══════════════════════════════════════════
+function rBadges() {
+  const n = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto)>=0 && dd(c.vcto)<=60).length;
+  const b = document.getElementById('bdg-v');
+  if (b) { b.textContent = n; b.className = `bdg ${n>0?'bdg-r':'bdg-g'}`; }
+}
+
+// ══════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════
+function accion(id, tipo) {
+  const c = DB.find(x => x.id === id); if (!c) return;
+  const T = document.getElementById('mact-t');
+  const S = document.getElementById('mact-s');
+  const B = document.getElementById('mact-b');
+  const btn = document.getElementById('mact-ok');
+  S.textContent = `${c.deudor} · ${c.acreedor} · ${c.num||'—'} · Saldo: ${fUF(c.saldo)}`;
+
+  if (tipo === 'pago') {
+    T.textContent = '✓ Registrar Pago';
+    B.innerHTML = `
+      <div class="fr">
+        <div class="fg"><label class="fl">Fecha de Pago</label><input class="fi" type="date" id="aa-fecha" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="fg"><label class="fl">Monto Pagado (UF)</label><input class="fi" type="number" id="aa-monto" value="${c.saldo}" step="0.01"></div>
+      </div>
+      <div class="fg"><label class="fl">Observación (opcional)</label><input class="fi" id="aa-obs" placeholder="Ej: Pagado vía transferencia BCI"></div>`;
+    btn.textContent = '✓ Confirmar Pago';
+    btn.onclick = () => {
+      const fecha = document.getElementById('aa-fecha')?.value || '';
+      const monto = document.getElementById('aa-monto')?.value || c.saldo;
+      const obs   = document.getElementById('aa-obs')?.value   || '';
+      const nota  = `Pagado ${fecha}${obs?' — '+obs:''}`;
+      // 1. Actualizar memoria local
+      DB = DB.map(x => x.id===id ? {...x, estado:'Pagado', nota} : x);
+      closeM('mo-act');
+      toast('s','Pago registrado',`${c.deudor} · ${c.acreedor}`);
+      renderAll();
+      // 1. Guardar en localStorage
+      guardarLocal();
+      // 2. Registrar en Historial
+      persistirCambio(buildEvento('PAGO', c,
+        `Pagado el ${fecha}. Monto: UF ${monto}. ${obs}`,
+        { fecha_pago: fecha, monto_pagado_uf: monto, observacion: obs }
+      ));
+    };
+  }
+  else if (tipo === 'refi') {
+    T.textContent = '↺ Refinanciar Crédito';
+    const mkt = MKT[c.tipo]?.avg || 0.054;
+    const ahorro = (c.tasa - mkt) * n2(c.saldo);
+    B.innerHTML = `
+      <div class="ibox" style="grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div><div style="font-size:9px;color:var(--mu)">TASA ACTUAL</div><div style="font-family:var(--fm);font-size:16px;color:var(--red)">${pct(c.tasa)}</div></div>
+        <div><div style="font-size:9px;color:var(--mu)">MERCADO HOY</div><div style="font-family:var(--fm);font-size:16px;color:var(--grn)">${pct(mkt)}</div></div>
+        <div><div style="font-size:9px;color:var(--mu)">AHORRO/AÑO</div><div style="font-family:var(--fm);font-size:16px;color:var(--gld)">${fUF(Math.max(0,ahorro))}</div></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Nueva Tasa Anual (%)</label><input class="fi" type="number" id="aa-ntasa" step="0.001" value="${(mkt*100).toFixed(3)}"></div>
+        <div class="fg"><label class="fl">Nuevo Acreedor</label><input class="fi" id="aa-nbanco" value="${c.acreedor}"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Nuevo Vencimiento</label><input class="fi" type="date" id="aa-nvcto" value="${c.vcto||''}"></div>
+        <div class="fg"><label class="fl">Nuevo Capital (UF)</label><input class="fi" type="number" id="aa-ncap" value="${c.capital||c.saldo}" step="0.01"></div>
+      </div>
+      <div class="fg"><label class="fl">Observación</label><input class="fi" id="aa-robs" placeholder="Ej: Refinanciado en condiciones mejoradas"></div>`;
+    btn.textContent = '↺ Confirmar Refinanciamiento';
+    btn.onclick = () => {
+      const nt  = parseFloat(document.getElementById('aa-ntasa')?.value) / 100;
+      const nb  = document.getElementById('aa-nbanco')?.value || c.acreedor;
+      const nv  = document.getElementById('aa-nvcto')?.value  || c.vcto;
+      const nc  = parseFloat(document.getElementById('aa-ncap')?.value)  || c.capital;
+      const obs = document.getElementById('aa-robs')?.value || '';
+      const ahorro_anual = ((c.tasa||0) - (nt||0)) * n2(c.saldo);
+      const nota = `Refi ${new Date().toLocaleDateString('es-CL')}${obs?' — '+obs:''}`;
+      // 1. Actualizar memoria local
+      DB = DB.map(x => x.id===id ? {
+        ...x, estado:'Refinanciado', tasa:nt||x.tasa, acreedor:nb,
+        vcto:nv, capital:nc, fechaRenov:new Date().toISOString().slice(0,10), nota
+      } : x);
+      closeM('mo-act');
+      toast('s','Refinanciamiento registrado',`Nueva tasa: ${pct(nt)}`);
+      renderAll();
+      // 1. Guardar en localStorage
+      guardarLocal();
+      // 2. Registrar en Historial
+      persistirCambio(buildEvento('REFINANCIAMIENTO', c,
+        `Refinanciado. Tasa: ${pct(c.tasa)} → ${pct(nt)}. Nuevo acreedor: ${nb}. Nuevo vcto: ${nv}. ${obs}`,
+        {
+          tasa_anterior:   c.tasa ? (c.tasa*100).toFixed(4)+'%' : '—',
+          tasa_nueva:      nt ? (nt*100).toFixed(4)+'%' : '—',
+          acreedor_nuevo:  nb,
+          vcto_nuevo:      nv,
+          capital_nuevo:   nc,
+          ahorro_anual_uf: ahorro_anual.toFixed(2),
+          observacion:     obs
+        }
+      ));
+    };
+  }
+  else if (tipo === 'nota') {
+    T.textContent = '📝 Nota / Observación';
+    B.innerHTML = `<div class="fg"><label class="fl">Nota</label><input class="fi" id="aa-nv" value="${c.nota||''}" placeholder="Escribe una observación..."></div>`;
+    btn.textContent = 'Guardar Nota';
+    btn.onclick = () => {
+      const nuevaNota = document.getElementById('aa-nv')?.value || '';
+      // 1. Actualizar memoria local
+      DB = DB.map(x => x.id===id ? {...x, nota:nuevaNota} : x);
+      closeM('mo-act');
+      toast('s','Nota guardada','');
+      renderAll();
+      // 1. Guardar en localStorage
+      guardarLocal();
+      // 2. Registrar en Historial
+      persistirCambio(buildEvento('NOTA', c, nuevaNota, { nota_texto: nuevaNota }));
+    };
+  }
+  document.getElementById('mo-act').classList.add('on');
+}
+
+function editC(id) {
+  const c = DB.find(x=>x.id===id); if (!c) return;
+  document.getElementById('moa-t').textContent = 'Editar Crédito';
+  document.getElementById('moa-save').textContent = 'Guardar Cambios';
+  document.getElementById('a-deu').value  = c.deudor;
+  document.getElementById('a-acr').value  = c.acreedor;
+  document.getElementById('a-tipo').value = c.tipo;
+  document.getElementById('a-num').value  = c.num||'';
+  document.getElementById('a-cap').value  = c.capital||'';
+  document.getElementById('a-tasa').value = c.tasa ? (c.tasa*100).toFixed(3) : '';
+  document.getElementById('a-int').value  = c.interes||'';
+  document.getElementById('a-sal').value  = c.saldo||'';
+  document.getElementById('a-vcto').value = c.vcto||'';
+  document.getElementById('a-renov').value= c.fechaRenov||'';
+  document.getElementById('a-nota').value = c.nota||'';
+  document.getElementById('moa-save').onclick = () => saveCredit(id);
+  document.getElementById('mo-add').classList.add('on');
+}
+
+function delC(id) {
+  const c = DB.find(x=>x.id===id);
+  if (!confirm(`¿Eliminar "${c?.deudor} · ${c?.acreedor}"?`)) return;
+  // 1. Actualizar memoria local
+  DB = DB.filter(x=>x.id!==id);
+  toast('d','Crédito eliminado','');
+  renderAll();
+  // 1. Guardar en localStorage
+  guardarLocal();
+  // 2. Registrar en Historial
+  if (c) persistirCambio(buildEvento('ELIMINACION', c,
+    `Crédito eliminado de la app. Saldo al momento: UF ${c.saldo}`, {}
+  ));
+}
+
+// ══════════════════════════════════════════
+// ADD / SAVE
+// ══════════════════════════════════════════
+function openAdd() {
+  document.getElementById('moa-t').textContent = 'Nuevo Crédito';
+  document.getElementById('moa-save').textContent = 'Guardar';
+  ['a-deu','a-acr','a-num','a-cap','a-tasa','a-int','a-sal','a-vcto','a-renov','a-nota'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('moa-save').onclick = () => saveCredit(null);
+  document.getElementById('mo-add').classList.add('on');
+}
+
+function saveCredit(editId) {
+  const tasa = parseFloat(document.getElementById('a-tasa').value) / 100;
+  const obj = {
+    id: editId || ('x' + Date.now()),
+    tipo:       document.getElementById('a-tipo').value,
+    acreedor:   document.getElementById('a-acr').value  || '—',
+    deudor:     document.getElementById('a-deu').value  || 'Nuevo',
+    num:        document.getElementById('a-num').value,
+    capital:    parseFloat(document.getElementById('a-cap').value)  || 0,
+    tasa:       isNaN(tasa) ? 0 : tasa,
+    interes:    parseFloat(document.getElementById('a-int').value)  || 0,
+    saldo:      parseFloat(document.getElementById('a-sal').value)  || 0,
+    vcto:       document.getElementById('a-vcto').value,
+    fechaRenov: document.getElementById('a-renov').value,
+    nota:       document.getElementById('a-nota').value,
+    estado:     editId ? (DB.find(x=>x.id===editId)?.estado || 'Pendiente') : 'Pendiente',
+    montoOrigen:0, cuotaStr:'', fechaOrigen:'',
+  };
+  DB = editId ? DB.map(x=>x.id===editId?obj:x) : [...DB, obj];
+  closeM('mo-add');
+  toast('s', editId?'Crédito actualizado':'Crédito agregado', `${obj.deudor} · ${obj.acreedor}`);
+  guardarLocal();
+  renderAll();
+  // Registrar en Historial
+  const tipo = editId ? 'EDICION' : 'NUEVO_CREDITO';
+  const detalle = editId ? `Editado: ${obj.deudor} · ${obj.acreedor}` : `Nuevo: ${obj.deudor} · ${obj.acreedor}`;
+  persistirCambio(buildEvento(tipo, obj, detalle));
+}
+
+// ══════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════
+function closeM(id) { document.getElementById(id).classList.remove('on'); }
+document.getElementById('moa-cancel').onclick  = () => closeM('mo-add');
+document.getElementById('mact-cancel').onclick = () => closeM('mo-act');
+document.querySelectorAll('.mo').forEach(m => {
+  m.addEventListener('click', e => { if (e.target===m) m.classList.remove('on'); });
+});
+
+// ══════════════════════════════════════════
+// TOASTS
+// ══════════════════════════════════════════
+function toast(type, title, body) {
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<div class="t-t">${title}</div>${body?`<div class="t-b">${body}</div>`:''}`;
+  c.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 3500);
+}
+
+
+// ══════════════════════════════════════════
+// TOMA DE DECISIONES
+// ══════════════════════════════════════════
+function rDecisiones() {
+  rAlerts();
+  rScorecard();
+  rDecisionMatrix();
+  rWhatIf();
+  rRenewalCal();
+  populateSimSel();
+}
+
+function rAlerts() {
+  const el = document.getElementById('alert-panel'); if (!el) return;
+  const alerts = [];
+  const now = DB.filter(c => c.estado !== 'Pagado');
+
+  // Vencidos
+  const venc = now.filter(c => c.tipo==='Comerciales' && dd(c.vcto) < 0);
+  if (venc.length) alerts.push({
+    level:'red', icon:'🚨',
+    title:`${venc.length} crédito(s) VENCIDOS — requieren acción inmediata`,
+    body: venc.map(c=>`<strong>${c.deudor}</strong> · ${c.acreedor} · ${fUF(c.saldo)} · venció ${c.vcto}`).join('<br>'),
+    accion:'Contactar acreedores hoy para prorrogar o refinanciar'
+  });
+
+  // Próximos 30 días
+  const prox30 = now.filter(c => c.tipo==='Comerciales' && dd(c.vcto)>=0 && dd(c.vcto)<=30);
+  if (prox30.length) alerts.push({
+    level:'yel', icon:'⚠️',
+    title:`${prox30.length} crédito(s) vencen en los próximos 30 días`,
+    body: prox30.map(c=>`<strong>${c.deudor}</strong> · ${c.acreedor} · ${fUF(c.saldo)} · ${dd(c.vcto)}d`).join('<br>'),
+    accion:'Iniciar proceso de renovación esta semana'
+  });
+
+  // Tasas altas vs mercado
+  const altaTasa = now.filter(c => c.tipo==='Comerciales' && c.tasa > 0.06);
+  const totAltaTasa = altaTasa.reduce((s,c)=>s+n2(c.saldo),0);
+  if (altaTasa.length) alerts.push({
+    level:'yel', icon:'📊',
+    title:`${altaTasa.length} crédito(s) con tasa > 6% anual — saldo total ${fUF(totAltaTasa)}`,
+    body:`Tasas sobre mercado: ${[...new Set(altaTasa.map(c=>c.deudor))].join(', ')}. Mercado actual: 5.1-5.4%`,
+    accion:'Ver oportunidades de mejora para calcular ahorro potencial'
+  });
+
+  // Concentración de acreedor
+  const byAcr = {}; now.forEach(c=>{ byAcr[c.acreedor]=(byAcr[c.acreedor]||0)+n2(c.saldo); });
+  const tot = now.reduce((s,c)=>s+n2(c.saldo),0);
+  const maxAcr = Object.entries(byAcr).sort((a,b)=>b[1]-a[1])[0];
+  if (maxAcr && maxAcr[1]/tot > 0.55) alerts.push({
+    level:'tea', icon:'🏦',
+    title:`Concentración alta en ${maxAcr[0]}: ${(maxAcr[1]/tot*100).toFixed(0)}% del saldo total`,
+    body:`${fUF(maxAcr[1])} de ${fUF(tot)} concentrado en un solo acreedor. Riesgo de dependencia.`,
+    accion:'Diversificar cartera incorporando 1-2 bancos alternativos'
+  });
+
+  const cols = {red:'rgba(231,76,60,.1)',yel:'rgba(243,156,18,.08)',tea:'rgba(26,188,156,.08)'};
+  const bords = {red:'rgba(231,76,60,.3)',yel:'rgba(243,156,18,.25)',tea:'rgba(26,188,156,.25)'};
+  const accols = {red:'var(--red)',yel:'var(--yel)',tea:'var(--tea)'};
+  el.innerHTML = alerts.map(a => `
+    <div style="background:${cols[a.level]};border:1px solid ${bords[a.level]};border-left:3px solid ${accols[a.level]};border-radius:10px;padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:18px;flex-shrink:0">${a.icon}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;margin-bottom:4px;font-size:13px">${a.title}</div>
+          <div style="font-size:11px;color:var(--mu);line-height:1.6;margin-bottom:6px">${a.body}</div>
+          <div style="font-size:11px;color:${accols[a.level]};font-weight:600">→ ${a.accion}</div>
+        </div>
+      </div>
+    </div>`).join('') || '<div style="color:var(--grn);text-align:center;padding:20px;font-size:13px">✓ Sin alertas activas — cartera en orden</div>';
+}
+
+function rScorecard() {
+  const el = document.getElementById('scorecard'); if (!el) return;
+  const act = DB.filter(c=>c.estado!=='Pagado');
+  const tot = act.reduce((s,c)=>s+n2(c.saldo),0);
+
+  // 1. Urgencia de vencimientos (0-10, menor=peor)
+  const venc = act.filter(c=>c.tipo==='Comerciales'&&dd(c.vcto)<0).length;
+  const prox30 = act.filter(c=>c.tipo==='Comerciales'&&dd(c.vcto)>=0&&dd(c.vcto)<=30).length;
+  const scoreVcto = Math.max(0, 10 - venc*3 - prox30*1);
+
+  // 2. Nivel de tasas vs mercado
+  const sobreMkt = act.filter(c=>c.tipo==='Comerciales'&&c.tasa>(MKT.Comerciales.avg+0.005)).length;
+  const totalCom = act.filter(c=>c.tipo==='Comerciales').length;
+  const scoreTasa = Math.round(10 - (sobreMkt/Math.max(totalCom,1))*8);
+
+  // 3. Concentración acreedor
+  const byAcr = {}; act.forEach(c=>{ byAcr[c.acreedor]=(byAcr[c.acreedor]||0)+n2(c.saldo); });
+  const maxConc = Math.max(...Object.values(byAcr))/tot;
+  const scoreConc = Math.round(10 - maxConc*8);
+
+  // 4. Diversificación deudores
+  const deudores = new Set(act.map(c=>c.deudor)).size;
+  const scoreDiv = Math.min(10, deudores*1.5);
+
+  // 5. Relación capital/saldo (nivel de amortización)
+  const capTot = act.filter(c=>c.capital).reduce((s,c)=>s+n2(c.capital),0);
+  const salTot = act.reduce((s,c)=>s+n2(c.saldo),0);
+  const scoreAmort = Math.round(Math.min(10, (1-salTot/capTot)*20+5));
+
+  const scores = [
+    {label:'Urgencia vencimientos', score:scoreVcto, desc: venc>0?`${venc} crédito(s) vencido(s)`:`${prox30} en próx. 30 días`},
+    {label:'Nivel de tasas', score:scoreTasa, desc:`${sobreMkt} de ${totalCom} sobre el mercado`},
+    {label:'Concentración acreedor', score:Math.max(1,scoreConc), desc:`Consorcio: ${(maxConc*100).toFixed(0)}% del saldo`},
+    {label:'Diversificación deudores', score:Math.min(10,Math.round(scoreDiv)), desc:`${deudores} deudores activos`},
+    {label:'Estado amortización', score:Math.max(2,scoreAmort), desc:`Intereses: ${((salTot-capTot)/capTot*100).toFixed(1)}% sobre capital`},
+  ];
+
+  const avg = scores.reduce((s,x)=>s+x.score,0)/scores.length;
+  const globalCol = avg>=7?'var(--grn)':avg>=5?'var(--yel)':'var(--red)';
+  const globalLabel = avg>=7?'BUENO':avg>=5?'ATENCIÓN':'CRÍTICO';
+
+  el.innerHTML = `
+    <div style="text-align:center;margin-bottom:14px;padding:12px;background:var(--bg);border-radius:9px;border:1px solid var(--bd)">
+      <div style="font-family:var(--fm);font-size:32px;font-weight:500;color:${globalCol}">${avg.toFixed(1)}<span style="font-size:16px;color:var(--mu)">/10</span></div>
+      <div style="font-size:11px;font-weight:700;color:${globalCol};letter-spacing:1px">${globalLabel}</div>
+    </div>
+    ${scores.map(s=>{
+      const col = s.score>=7?'var(--grn)':s.score>=5?'var(--yel)':'var(--red)';
+      const w = (s.score/10*100).toFixed(0);
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:11px">${s.label}</span>
+          <span style="font-family:var(--fm);font-size:11px;color:${col}">${s.score}/10</span>
+        </div>
+        <div style="height:6px;background:var(--s2);border-radius:3px;overflow:hidden;margin-bottom:2px">
+          <div style="height:100%;width:${w}%;background:${col};border-radius:3px;transition:width .8s ease"></div>
+        </div>
+        <div style="font-size:10px;color:var(--mu)">${s.desc}</div>
+      </div>`;
+    }).join('')}`;
+}
+
+function rDecisionMatrix() {
+  const el = document.getElementById('decision-matrix'); if (!el) return;
+  const act = DB.filter(c=>c.estado!=='Pagado');
+
+  const decisions = [];
+
+  // Critical vencidos
+  act.filter(c=>c.tipo==='Comerciales'&&dd(c.vcto)<0).forEach(c=>{
+    decisions.push({imp:10, urg:10, color:'var(--red)', label:'CRÍTICO',
+      title:`Renovar URGENTE: ${c.deudor} · ${c.acreedor}`,
+      detail:`Vencido hace ${Math.abs(dd(c.vcto))} días. Saldo: ${fUF(c.saldo)}. Tasa actual: ${pct(c.tasa)}`,
+      accion:`Llamar a ${c.acreedor} hoy mismo. Credito #${c.num||'—'}`,
+      id: c.id
+    });
+  });
+
+  // Próximos 30 días
+  act.filter(c=>c.tipo==='Comerciales'&&dd(c.vcto)>=0&&dd(c.vcto)<=30).forEach(c=>{
+    const mkt = MKT.Comerciales.avg;
+    const ahorro = (c.tasa-mkt)*n2(c.saldo);
+    decisions.push({imp:8, urg:9, color:'var(--yel)', label:'URGENTE',
+      title:`Renovar/Refinanciar: ${c.deudor} · ${c.acreedor}`,
+      detail:`Vence en ${dd(c.vcto)} días. Saldo: ${fUF(c.saldo)}. ${ahorro>0?`Ahorro potencial: ${fUF(ahorro)}/año`:'Tasa competitiva'}`,
+      accion:`Iniciar negociación antes del ${c.vcto}`,
+      id: c.id
+    });
+  });
+
+  // Alta tasa
+  act.filter(c=>c.tipo==='Comerciales'&&c.tasa>0.062&&!decisions.find(d=>d.id===c.id)).forEach(c=>{
+    const ahorro = (c.tasa-MKT.Comerciales.avg)*n2(c.saldo);
+    decisions.push({imp:7, urg:5, color:'var(--tea)', label:'IMPORTANTE',
+      title:`Renegociar tasa: ${c.deudor} · ${pct(c.tasa)} → ~${pct(MKT.Comerciales.avg)}`,
+      detail:`Saldo: ${fUF(c.saldo)}. Ahorro potencial: ${fUF(ahorro)}/año. Vence: ${c.vcto||'—'}`,
+      accion:`Solicitar oferta a banco alternativo`,
+      id: c.id
+    });
+  });
+
+  // Sort by urgencia × impacto
+  decisions.sort((a,b) => (b.imp*b.urg) - (a.imp*a.urg));
+  const top = decisions.slice(0,8);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:0;border:1px solid var(--bd);border-radius:9px;overflow:hidden">
+      <div style="padding:8px 12px;background:var(--s2);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu)">Prioridad</div>
+      <div style="padding:8px 12px;background:var(--s2);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu)">Acción Requerida</div>
+      <div style="padding:8px 12px;background:var(--s2);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu)">Impacto</div>
+      <div style="padding:8px 12px;background:var(--s2);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu)">Acciones</div>
+      ${top.map((d,i)=>`
+        <div style="padding:10px 12px;border-top:1px solid var(--bd);display:flex;align-items:center">
+          <span style="background:${d.color}18;color:${d.color};border:1px solid ${d.color}33;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap">${d.label}</span>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid var(--bd)">
+          <div style="font-weight:600;font-size:12px">${d.title}</div>
+          <div style="font-size:11px;color:var(--mu);margin-top:2px">${d.detail}</div>
+          <div style="font-size:10px;color:${d.color};margin-top:3px">→ ${d.accion}</div>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid var(--bd);text-align:center">
+          <div style="font-family:var(--fm);font-size:16px;color:${d.color}">${d.imp*d.urg}</div>
+          <div style="font-size:9px;color:var(--mu)">score</div>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid var(--bd)">
+          <div style="display:flex;gap:4px">
+            ${d.id&&DB.find(c=>c.id===d.id)?.estado!=='Pagado'?`<button class="ab ab-p" onclick="accion('${d.id}','pago')">✓</button>`:''}
+            ${d.id&&DB.find(c=>c.id===d.id)?.estado!=='Pagado'?`<button class="ab ab-r" onclick="accion('${d.id}','refi')">↺</button>`:''}
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function rWhatIf() {
+  const el = document.getElementById('whatif-chart'); if (!el) return;
+  const act = DB.filter(c=>c.estado!=='Pagado'&&c.tipo==='Comerciales');
+  const mkt = MKT.Comerciales.avg;
+
+  const actual = act.reduce((s,c)=>s+(c.tasa||0)*n2(c.saldo),0);
+  const mercado = act.reduce((s,c)=>s+mkt*n2(c.saldo),0);
+  const ahorro = actual - mercado;
+  const saldo = act.reduce((s,c)=>s+n2(c.saldo),0);
+
+  // Breakdown by deudor
+  const byDeu = {};
+  act.forEach(c=>{
+    if(!byDeu[c.deudor]) byDeu[c.deudor]={actual:0,mkt:0};
+    byDeu[c.deudor].actual += (c.tasa||0)*n2(c.saldo);
+    byDeu[c.deudor].mkt    += mkt*n2(c.saldo);
+  });
+
+  const dEnt = Object.entries(byDeu).sort((a,b)=>(b[1].actual-b[1].mkt)-(a[1].actual-a[1].mkt));
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">Costo Actual/Año</div>
+        <div style="font-family:var(--fm);font-size:18px;color:var(--red);font-weight:500;margin-top:4px">${fUF(actual)}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">A Tasa Mercado</div>
+        <div style="font-family:var(--fm);font-size:18px;color:var(--grn);font-weight:500;margin-top:4px">${fUF(mercado)}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid rgba(39,174,96,.2);border-radius:8px;padding:12px;text-align:center;border-left:2px solid var(--grn)">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">Ahorro Potencial</div>
+        <div style="font-family:var(--fm);font-size:18px;color:var(--grn);font-weight:500;margin-top:4px">${fUF(ahorro)}</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Ahorro por Deudor</div>
+    ${dEnt.map(([d,v])=>{
+      const sav = v.actual-v.mkt;
+      const col = sav>500?'var(--red)':sav>100?'var(--yel)':'var(--grn)';
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="min-width:130px;font-size:11px;color:var(--mu)">${d}</div>
+        <div style="flex:1;height:18px;background:var(--s2);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.min(100,(sav/Math.max(ahorro,1)*100)).toFixed(0)}%;background:${col};border-radius:3px"></div>
+        </div>
+        <div style="font-family:var(--fm);font-size:11px;color:${col};min-width:70px;text-align:right">${fUF(sav)}/a</div>
+      </div>`;
+    }).join('')}`;
+}
+
+function rRenewalCal() {
+  const el = document.getElementById('renewal-cal'); if (!el) return;
+  const act = DB.filter(c=>c.tipo==='Comerciales'&&c.estado==='Pendiente'&&c.vcto);
+  const next8w = act.filter(c=>dd(c.vcto)>=-7&&dd(c.vcto)<=56).sort((a,b)=>dd(a.vcto)-dd(b.vcto));
+
+  if (!next8w.length) {
+    el.innerHTML = '<div style="color:var(--mu);text-align:center;padding:20px;font-size:12px">Sin vencimientos en las próximas 8 semanas</div>';
+    return;
+  }
+
+  // Group by week
+  const weeks = {};
+  next8w.forEach(c=>{
+    const d = dd(c.vcto);
+    const wk = d<0?'Esta semana (VENCIDO)':d<=7?'Esta semana':d<=14?'Semana 2':d<=21?'Semana 3':d<=28?'Semana 4':d<=35?'Semana 5':d<=42?'Semana 6':d<=49?'Semana 7':'Semana 8';
+    if(!weeks[wk]) weeks[wk]=[];
+    weeks[wk].push(c);
+  });
+
+  el.innerHTML = Object.entries(weeks).map(([wk, creds])=>`
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-weight:700">${wk}</div>
+      ${creds.map(c=>{
+        const d=dd(c.vcto);
+        const col=d<0?'var(--red)':d<=7?'var(--red)':d<=21?'var(--yel)':'var(--mu)';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border:1px solid var(--bd);border-left:2px solid ${col};border-radius:6px;margin-bottom:4px">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">${c.deudor}</div>
+            <div style="font-size:10px;color:var(--mu)">${c.acreedor} · ${c.vcto}</div>
+          </div>
+          <div style="font-family:var(--fm);font-size:11px;color:${col}">${fUF(c.saldo)}</div>
+          <button class="ab ab-r" onclick="accion('${c.id}','refi')" style="font-size:10px;padding:3px 7px">↺</button>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function populateSimSel() {
+  const sel = document.getElementById('sim-sel'); if (!sel || sel.options.length > 1) return;
+  DB.filter(c=>c.estado!=='Pagado'&&c.tasa>0).sort((a,b)=>b.tasa-a.tasa).forEach(c=>{
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = `${c.deudor} · ${c.acreedor} · ${pct(c.tasa)} · ${fUF(c.saldo)}`;
+    sel.appendChild(o);
+  });
+}
+
+function simUpdate() {
+  const sel = document.getElementById('sim-sel')?.value;
+  const ntasa = parseFloat(document.getElementById('sim-tasa')?.value) / 100;
+  const plazo = parseInt(document.getElementById('sim-plazo')?.value) || 12;
+  const el = document.getElementById('sim-result');
+  if (!el) return;
+  if (!sel) { el.innerHTML = '<div style="color:var(--mu);font-size:12px;text-align:center">Selecciona un crédito</div>'; return; }
+
+  const c = DB.find(x=>x.id===sel);
+  if (!c) return;
+  if (!ntasa || isNaN(ntasa)) { el.innerHTML = '<div style="color:var(--mu);font-size:12px;text-align:center">Ingresa la nueva tasa</div>'; return; }
+
+  const saldo = n2(c.saldo);
+  const costoActual = c.tasa * saldo * (plazo/12);
+  const costoNuevo  = ntasa  * saldo * (plazo/12);
+  const ahorro = costoActual - costoNuevo;
+  const ahorroMes = ahorro / plazo;
+  const col = ahorro > 0 ? 'var(--grn)' : 'var(--red)';
+  const mkt = MKT[c.tipo]?.avg || 0.054;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">Tasa Actual</div>
+        <div style="font-family:var(--fm);font-size:20px;color:var(--red)">${pct(c.tasa)}</div>
+      </div>
+      <div>
+        <div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">Tasa Nueva</div>
+        <div style="font-family:var(--fm);font-size:20px;color:var(--grn)">${pct(ntasa)}</div>
+      </div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:7px;padding:12px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+        <div>
+          <div style="font-size:9px;color:var(--mu)">Costo actual ${plazo}m</div>
+          <div style="font-family:var(--fm);font-size:14px;color:var(--red)">${fUF(costoActual)}</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--mu)">Costo nuevo ${plazo}m</div>
+          <div style="font-family:var(--fm);font-size:14px;color:var(--grn)">${fUF(costoNuevo)}</div>
+        </div>
+        <div style="border-left:1px solid var(--bd)">
+          <div style="font-size:9px;color:var(--mu)">Ahorro total</div>
+          <div style="font-family:var(--fm);font-size:14px;color:${col}">${fUF(ahorro)}</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--mu)">
+      Ahorro mensual: <strong style="color:${col}">${fUF(ahorroMes)}</strong> · 
+      Mercado referencial: <strong>${pct(mkt)}</strong> · 
+      Saldo: <strong>${fUF(saldo)}</strong>
+    </div>
+    ${ahorro > 0 ? `<button class="ab ab-r" onclick="accion('${c.id}','refi')" style="margin-top:10px;width:100%;text-align:center;padding:8px">↺ Refinanciar este crédito ahora</button>` : '<div style="margin-top:8px;font-size:11px;color:var(--red)">⚠ La nueva tasa es mayor a la actual — no conviene</div>'}`;
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Intentar cargar desde localStorage
+  const teniaLocal = cargarLocal();
+  // 2. Renderizar con lo que hay (localStorage o HTML)
+  renderAll();
+  // 3. Mostrar estado
+  if (teniaLocal) {
+    showSyncStatus('ok', '✓ ' + DB.length + ' creditos cargados');
+  } else {
+    showSyncStatus('ok', 'Sistema listo · ' + DB.length + ' creditos');
+  }
+  setTimeout(() => {
+    const venc = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto) < 0);
+    const prox = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto)>=0 && dd(c.vcto)<=7);
+    if (venc.length) toast('d', `🚨 ${venc.length} crédito(s) VENCIDOS`, venc.map(c=>`${c.deudor}`).join(', '));
+    if (prox.length) toast('w', `⚠ ${prox.length} crédito(s) vencen esta semana`, prox.map(c=>`${c.deudor}·${c.acreedor}`).join(', '));
+  }, 800);
+});
+</script>
+</body>
+</html>
