@@ -543,146 +543,69 @@ function buildEvento(tipo, credito, detalle, extras = {}) {
 }
 
 // ══════════════════════════════════════════
-// CAPA DE BASE DE DATOS — Google Sheets
-// Lee al cargar, escribe en cada cambio
+// PERSISTENCIA: localStorage + Google Sheets
 // ══════════════════════════════════════════
-let IS_CONNECTED = false;
-let DB_LOADED_FROM_SHEET = false;
+const LS_KEY = 'pasivos360_db_v1';
 
-// ── Llamada GET al Apps Script ────────────
-async function sheetGet(params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${SCRIPT_URL}?${qs}`);
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
-  return json;
-}
-
-// ── Llamada POST al Apps Script ───────────
-async function sheetPost(body) {
-  const res = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
-  return json;
-}
-
-// ── CARGAR créditos desde el Sheet ────────
-async function cargarDesdeSheet() {
-  if (!SCRIPT_URL) {
-    showSyncStatus('offline', 'Modo local — datos del HTML');
-    return;
-  }
-  showSyncStatus('syncing', 'Cargando datos desde Google Sheets...');
+// ── Guardar DB en localStorage ────────────
+function guardarLocal() {
   try {
-    const data = await sheetGet({ accion: 'leerCreditos' });
-    if (data.creditos && data.creditos.length > 0) {
-      // Filtrar eliminados y normalizar campos
-      DB = data.creditos
-        .filter(c => c.estado !== 'ELIMINADO')
-        .map(c => normalizarCredito(c));
-      DB_LOADED_FROM_SHEET = true;
-      IS_CONNECTED = true;
-      showSyncStatus('ok', `✓ ${DB.length} créditos cargados desde Sheets`);
-      renderAll();
-    } else {
-      // Sheet vacío — subir datos del HTML al Sheet por primera vez
-      showSyncStatus('syncing', 'Primera vez — guardando datos en Sheets...');
-      await sheetPost({ accion: 'guardarTodos', creditos: DB });
-      IS_CONNECTED = true;
-      DB_LOADED_FROM_SHEET = true;
-      showSyncStatus('ok', `✓ ${DB.length} créditos sincronizados con Sheets`);
+    localStorage.setItem(LS_KEY, JSON.stringify(DB));
+  } catch(e) {
+    console.warn('Error guardando en localStorage:', e);
+  }
+}
+
+// ── Cargar DB desde localStorage ─────────
+function cargarLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data && data.length > 0) {
+        DB = data;
+        return true;
+      }
     }
   } catch(e) {
-    console.warn('Error cargando desde Sheets:', e);
-    showSyncStatus('error', 'Error de conexión — usando datos locales');
-    IS_CONNECTED = false;
+    console.warn('Error leyendo localStorage:', e);
   }
+  return false;
 }
 
-// ── Normalizar crédito desde Sheet ───────
-function normalizarCredito(c) {
-  return {
-    id:          c.id          || c.ID          || ('x'+Math.random()),
-    tipo:        c.tipo        || c.Tipo         || 'Comerciales',
-    acreedor:    c.acreedor    || c.Acreedor     || '—',
-    deudor:      c.deudor      || c.Deudor       || '—',
-    num:         c.num         || c['N° Crédito']|| '',
-    fechaOrigen: c.fechaOrigen || '',
-    montoOrigen: +c.montoOrigen|| 0,
-    fechaRenov:  c.fechaRenov  || '',
-    vcto:        c.vcto        || '',
-    cuotaStr:    c.cuotaStr    || '',
-    capital:     +c.capital    || 0,
-    tasa:        +c.tasa       || 0,
-    tasaMensual: +c.tasaMensual|| 0,
-    interes:     c.interes != null ? +c.interes : null,
-    saldo:       +c.saldo      || 0,
-    cuota:       +c.cuota      || 0,
-    estado:      c.estado      || 'Pendiente',
-    nota:        c.nota        || '',
-  };
-}
-
-// ── GUARDAR un crédito en el Sheet ────────
-async function guardarCreditoEnSheet(credito) {
-  if (!SCRIPT_URL || !IS_CONNECTED) return;
-  try {
-    await sheetPost({ accion: 'guardarCredito', credito });
-  } catch(e) {
-    console.warn('Error guardando crédito:', e);
-  }
-}
-
-// ── ELIMINAR un crédito en el Sheet ───────
-async function eliminarCreditoEnSheet(id) {
-  if (!SCRIPT_URL || !IS_CONNECTED) return;
-  try {
-    await sheetPost({ accion: 'eliminarCredito', id });
-  } catch(e) {
-    console.warn('Error eliminando crédito:', e);
-  }
-}
-
-// ── PERSISTIR cambio en Historial ─────────
+// ── Enviar cambio al Sheet (historial) ────
 async function persistirCambio(evento) {
   if (!SCRIPT_URL) return false;
   showSyncStatus('syncing', 'Guardando...');
   try {
     const payload = encodeURIComponent(JSON.stringify(evento));
-    const data = await sheetGet({ payload });
+    const res = await fetch(`${SCRIPT_URL}?payload=${payload}`);
+    const json = await res.json();
     const hora = new Date().toLocaleTimeString('es-CL');
-    showSyncStatus('ok', `✓ Guardado · fila ${data.fila} · ${hora}`);
+    showSyncStatus('ok', `✓ Guardado · ${hora}`);
     toast('s', '✓ Guardado en Google Sheets', `${evento.tipo_accion} · ${evento.deudor}`);
     return true;
   } catch(e) {
-    console.warn('Error persistiendo:', e);
-    showSyncStatus('error', '✗ Error al guardar');
-    toast('d', '✗ No se guardó en Sheets', e.message);
+    showSyncStatus('error', '✗ Error al guardar en Sheets');
     return false;
   }
 }
 
 function buildEvento(tipo, credito, detalle, extras = {}) {
   return {
-    timestamp:   new Date().toISOString(),
-    fecha_local: new Date().toLocaleDateString('es-CL'),
-    hora_local:  new Date().toLocaleTimeString('es-CL'),
-    tipo_accion: tipo,
-    credito_id:  credito.id || '—',
-    num_credito: credito.num || '—',
-    deudor:      credito.deudor || '—',
-    acreedor:    credito.acreedor || '—',
-    tipo_credito:credito.tipo || '—',
-    saldo_uf:    credito.saldo || 0,
-    tasa_actual: credito.tasa ? (credito.tasa * 100).toFixed(4) + '%' : '—',
-    vcto:        credito.vcto || '—',
-    detalle:     detalle,
+    timestamp:    new Date().toISOString(),
+    fecha_local:  new Date().toLocaleDateString('es-CL'),
+    hora_local:   new Date().toLocaleTimeString('es-CL'),
+    tipo_accion:  tipo,
+    credito_id:   credito.id || '—',
+    num_credito:  credito.num || '—',
+    deudor:       credito.deudor || '—',
+    acreedor:     credito.acreedor || '—',
+    tipo_credito: credito.tipo || '—',
+    saldo_uf:     credito.saldo || 0,
+    tasa_actual:  credito.tasa ? (credito.tasa*100).toFixed(4)+'%' : '—',
+    vcto:         credito.vcto || '—',
+    detalle,
     ...extras
   };
 }
@@ -692,29 +615,29 @@ function showSyncStatus(state, msg) {
   const el = document.getElementById('sync-bar');
   if (!el) return;
   const styles = {
-    ok:      { bg:'rgba(39,174,96,.12)',  border:'rgba(39,174,96,.25)',  color:'#27ae60', icon:'✓' },
-    syncing: { bg:'rgba(241,196,15,.08)', border:'rgba(241,196,15,.2)',  color:'#f1c40f', icon:'⟳' },
-    error:   { bg:'rgba(231,76,60,.1)',   border:'rgba(231,76,60,.25)',  color:'#e74c3c', icon:'✕' },
-    offline: { bg:'rgba(100,116,139,.08)',border:'rgba(100,116,139,.2)', color:'#64748b', icon:'⊘' },
+    ok:      { bg:'rgba(39,174,96,.12)',   border:'rgba(39,174,96,.25)',   color:'#27ae60', icon:'✓' },
+    syncing: { bg:'rgba(241,196,15,.08)',  border:'rgba(241,196,15,.2)',   color:'#f1c40f', icon:'⟳' },
+    error:   { bg:'rgba(231,76,60,.1)',    border:'rgba(231,76,60,.25)',   color:'#e74c3c', icon:'✕' },
+    offline: { bg:'rgba(100,116,139,.08)', border:'rgba(100,116,139,.2)',  color:'#64748b', icon:'⊘' },
   };
   const s = styles[state] || styles.offline;
   el.style.cssText = `background:${s.bg};border:1px solid ${s.border};color:${s.color};padding:6px 14px;border-radius:6px;font-size:11px;font-family:var(--fm);display:flex;align-items:center;gap:6px;`;
   el.innerHTML = `<span style="animation:${state==='syncing'?'spin 1s linear infinite':'none'}">${s.icon}</span> ${msg}`;
 }
 
-// ── Override saveCredit ───────────────────
+// ── Override saveCredit ───────────────────// ── Override saveCredit ───────────────────
 const _origSaveCredit = saveCredit;
 function saveCredit(editId) {
   const esEdicion = !!editId;
-  const creditoAntes = editId ? DB.find(x => x.id === editId) : null;
+  const creditoAntes = editId ? {...DB.find(x => x.id === editId)} : null;
   _origSaveCredit(editId);
   const creditoDespues = editId ? DB.find(x => x.id === editId) : DB[DB.length - 1];
   if (creditoDespues) {
-    // Guardar en BBDD del Sheet
-    guardarCreditoEnSheet(creditoDespues);
-    // Registrar en Historial
+    // 1. Guardar en localStorage inmediatamente
+    guardarLocal();
+    // 2. Registrar en Historial del Sheet
     const tipo = esEdicion ? 'EDICION' : 'NUEVO_CREDITO';
-    let detalle = esEdicion
+    const detalle = esEdicion
       ? `Editado: ${creditoDespues.deudor} · ${creditoDespues.acreedor}`
       : `Nuevo: ${creditoDespues.deudor} · ${creditoDespues.acreedor}`;
     persistirCambio(buildEvento(tipo, creditoDespues, detalle, {
@@ -1343,10 +1266,9 @@ function accion(id, tipo) {
       closeM('mo-act');
       toast('s','Pago registrado',`${c.deudor} · ${c.acreedor}`);
       renderAll();
-      // Guardar en BBDD del Sheet
-      const cActualizado = DB.find(x=>x.id===id);
-      if (cActualizado) guardarCreditoEnSheet(cActualizado);
-      // Registrar en Historial
+      // 1. Guardar en localStorage
+      guardarLocal();
+      // 2. Registrar en Historial
       persistirCambio(buildEvento('PAGO', c,
         `Pagado el ${fecha}. Monto: UF ${monto}. ${obs}`,
         { fecha_pago: fecha, monto_pagado_uf: monto, observacion: obs }
@@ -1389,10 +1311,9 @@ function accion(id, tipo) {
       closeM('mo-act');
       toast('s','Refinanciamiento registrado',`Nueva tasa: ${pct(nt)}`);
       renderAll();
-      // Guardar en BBDD del Sheet
-      const cRefi = DB.find(x=>x.id===id);
-      if (cRefi) guardarCreditoEnSheet(cRefi);
-      // Registrar en Historial
+      // 1. Guardar en localStorage
+      guardarLocal();
+      // 2. Registrar en Historial
       persistirCambio(buildEvento('REFINANCIAMIENTO', c,
         `Refinanciado. Tasa: ${pct(c.tasa)} → ${pct(nt)}. Nuevo acreedor: ${nb}. Nuevo vcto: ${nv}. ${obs}`,
         {
@@ -1418,10 +1339,9 @@ function accion(id, tipo) {
       closeM('mo-act');
       toast('s','Nota guardada','');
       renderAll();
-      // Guardar en BBDD del Sheet
-      const cNota = DB.find(x=>x.id===id);
-      if (cNota) guardarCreditoEnSheet(cNota);
-      // Registrar en Historial
+      // 1. Guardar en localStorage
+      guardarLocal();
+      // 2. Registrar en Historial
       persistirCambio(buildEvento('NOTA', c, nuevaNota, { nota_texto: nuevaNota }));
     };
   }
@@ -1454,9 +1374,9 @@ function delC(id) {
   DB = DB.filter(x=>x.id!==id);
   toast('d','Crédito eliminado','');
   renderAll();
-  // Eliminar del Sheet
-  eliminarCreditoEnSheet(id);
-  // Registrar en Historial
+  // 1. Guardar en localStorage
+  guardarLocal();
+  // 2. Registrar en Historial
   if (c) persistirCambio(buildEvento('ELIMINACION', c,
     `Crédito eliminado de la app. Saldo al momento: UF ${c.saldo}`, {}
   ));
@@ -1882,16 +1802,17 @@ function simUpdate() {
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', async () => {
-  if (SCRIPT_URL) {
-    // Vaciar DB para que no se vean datos viejos mientras carga
-    DB = [];
-    renderAll();
-    showSyncStatus('syncing', 'Cargando desde Google Sheets...');
-    await cargarDesdeSheet();
+document.addEventListener('DOMContentLoaded', () => {
+  // Cargar desde localStorage si existe (instantáneo)
+  const teníaLocal = cargarLocal();
+  if (teníaLocal) {
+    showSyncStatus('ok', `✓ ${DB.length} créditos cargados`);
   } else {
-    renderAll();
-    showSyncStatus('offline', 'Modo local — datos del HTML');
+    showSyncStatus('ok', 'Datos del sistema cargados');
+  }
+  renderAll();
+  if (SCRIPT_URL) {
+    // nada más — los cambios se guardan en localStorage automáticamente
   }
   setTimeout(() => {
     const venc = DB.filter(c => c.tipo==='Comerciales' && c.estado==='Pendiente' && dd(c.vcto) < 0);
